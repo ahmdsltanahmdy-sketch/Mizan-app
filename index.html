@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>خبرگزاری میزان | مینی‌اپ اختصاصی تلگرام</title>
-  
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
@@ -97,7 +97,7 @@
           <div class="text-[9px] text-slate-400 font-medium">پایگاه رسمی قوه قضائیه</div>
         </div>
       </div>
-      
+
       <div class="flex items-center gap-2">
         <button onclick="triggerHaptic('light'); toggleSearchBar();" class="p-2.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition">
           <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 1114 0z"/></svg>
@@ -118,7 +118,7 @@
       </div>
     </div>
 
-    <!-- منوی تب‌ها دقیقاً منطبق با لینک‌های اختصاصی و ترتیب درخواستی شما -->
+    <!-- منوی تب‌ها منطبق با لینک‌های اختصاصی و دقیق سایت میزان -->
     <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2.5 space-x-2 space-x-reverse text-xs">
       <button onclick="changeFeed('all', 'همه اخبار', this)" class="nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition bg-white/5 border border-white/10">همه اخبار</button>
       <button onclick="changeFeed('judiciary', 'قضایی', this)" class="nav-chip px-3.5 py-2 rounded-2xl text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/10">قضایی</button>
@@ -139,8 +139,8 @@
 
   <!-- بستر محتوا -->
   <main class="flex-1 px-4 pt-4 max-w-lg mx-auto w-full">
-    
-    <!-- بنر سینمایی عریض آخرین خبر در بالای صفحه (کاملاً مطابق با تصویر ارسالی شما برای تمامی تب‌ها) -->
+
+    <!-- بنر سینمایی عریض آخرین خبر در بالای صفحه -->
     <section id="spotlight-box" class="mb-5 hidden">
       <div onclick="openStoryReader(0)" class="relative rounded-[28px] overflow-hidden border border-white/20 shadow-2xl cursor-pointer active:scale-[0.98] transition duration-200 group">
         <img id="spotlight-img" src="" alt="آخرین خبر" class="w-full h-60 object-cover group-hover:scale-105 transition duration-700" />
@@ -171,7 +171,7 @@
       </div>
     </div>
 
-    <!-- جریان اخبار پایین بنر (گرافیک دقیق و فلت مشابه تصویر ارسالی: کارت عریض، عناوین در راست، عکس تصویرِ نمایه در چپ، و دکمه «مشاهده گزارش ←» در پایین برای تمامی تب‌ها) -->
+    <!-- جریان اخبار پایین بنر -->
     <section id="stream-box" class="space-y-3.5 hidden"></section>
 
     <!-- لودینگ اسکرول بی‌نهایت -->
@@ -246,7 +246,7 @@
     tg.ready();
     tg.expand();
 
-    // لینک‌های کاملاً اختصاصی و تفکیک‌شده بر اساس آرشیو و سرویس‌های رسمی سایت میزان
+    // لینک‌های کاملاً اختصاصی و منطبق با ساختار سرویس‌های سایت میزان
     const ENDPOINTS = {
       all: { url: "https://www.mizanonline.ir/fa/archive", name: "همه اخبار" },
       judiciary: { url: "https://www.mizanonline.ir/fa/services/17", name: "قضایی" },
@@ -276,7 +276,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       startClock();
       changeFeed('all', 'همه اخبار', document.querySelector('.nav-chip'), true);
-      
+
       tg.BackButton.onClick(() => closeReader());
       updateBookmarkDot();
 
@@ -307,97 +307,72 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // موتور هوشمند استخراج و اسکرپ لایو صفحه HTML سایت میزان برای استخراج دقیق اخبار هر سرویس به همراه تصاویر نمایه
+    // موتور استخراج قوی با پروکسی‌های پیاپی برای جلوگیری از مشکلات کش و فچ نشدن اخبار جدید
     async function fetchLiveNews(pageUrl, categoryKey) {
-      const uniqueParam = `&_cb_live=${Date.now()}_${Math.random()}`;
-      
-      let rssTarget = pageUrl;
-      if (categoryKey === 'all') rssTarget = "https://www.mizanonline.ir/fa/rss/allnews";
-      else if (categoryKey === 'judiciary') rssTarget = "https://www.mizanonline.ir/fa/rss/2";
-      else if (categoryKey === 'human_rights') rssTarget = "https://www.mizanonline.ir/fa/rss/7";
-      else if (categoryKey === 'legal_magazine') rssTarget = "https://www.mizanonline.ir/fa/rss/16";
-      else if (categoryKey === 'society') rssTarget = "https://www.mizanonline.ir/fa/rss/3";
-      else if (categoryKey === 'politics') rssTarget = "https://www.mizanonline.ir/fa/rss/1";
-      else if (categoryKey === 'economy') rssTarget = "https://www.mizanonline.ir/fa/rss/4";
-      else if (categoryKey === 'culture') rssTarget = "https://www.mizanonline.ir/fa/rss/5";
-      else if (categoryKey === 'sports') rssTarget = "https://www.mizanonline.ir/fa/rss/7";
-      else if (categoryKey === 'world') rssTarget = "https://www.mizanonline.ir/fa/rss/8";
-      else if (categoryKey === 'multimedia') rssTarget = "https://www.mizanonline.ir/fa/rss/6";
-      else if (categoryKey === 'infographic') rssTarget = "https://www.mizanonline.ir/fa/rss/3";
-      else if (categoryKey === 'photos') rssTarget = "https://www.mizanonline.ir/fa/rss/10";
+      const uniqueParam = `_cb_live=${Date.now()}_${Math.floor(Math.random()*100000)}`;
+      const targetWithParam = pageUrl + (pageUrl.includes('?') ? '&' : '?') + uniqueParam;
 
       const proxies = [
-        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssTarget)}${uniqueParam}`,
-        `https://api.allorigins.win/get?url=${encodeURIComponent(pageUrl + (pageUrl.includes('?') ? '&' : '?') + 'nocache=' + Date.now())}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(pageUrl + '?rnd=' + Date.now())}`
+        `https://api.allorigins.win/get?url=${encodeURIComponent(targetWithParam)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetWithParam)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetWithParam)}`
       ];
 
       for (const p of proxies) {
         try {
-          const res = await fetch(p, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' } });
+          const res = await fetch(p, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
           if (!res.ok) continue;
 
-          if (p.includes('rss2json')) {
-            const json = await res.json();
-            if (json.status === "ok" && json.items && json.items.length > 0) {
-              return json.items.map(item => {
-                let img = item.enclosure?.link || item.thumbnail || "";
-                if (!img && item.description) {
-                  const m = item.description.match(/<img[^>]+src="([^">]+)"/);
-                  if (m) img = m[1];
-                }
-                return {
-                  title: item.title,
-                  link: item.link,
-                  pubDate: item.pubDate,
-                  description: item.description,
-                  image: img
-                };
-              });
-            }
-          } else {
-            const text = await res.text();
-            let htmlString = text;
-            if (p.includes('allorigins')) {
-              try {
-                const json = JSON.parse(text);
-                htmlString = json.contents;
-              } catch(err) {}
-            }
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlString, "text/html");
-            
-            const newsElements = doc.querySelectorAll(".box, article, .news-item, .item, li");
-            let extracted = [];
-            
-            newsElements.forEach(el => {
-              const a = el.querySelector("a");
-              const imgEl = el.querySelector("img");
-              const titleEl = el.querySelector("h2, h3, h4, .title") || a;
-              const dateEl = el.querySelector(".date, time, .time");
+          const text = await res.text();
+          let htmlString = text;
+          if (p.includes('allorigins.win/get')) {
+            try {
+              const json = JSON.parse(text);
+              htmlString = json.contents;
+            } catch(e) {}
+          }
 
-              if (a && titleEl && titleEl.textContent.trim().length > 5) {
-                let link = a.getAttribute("href");
-                if (link && !link.startsWith("http")) link = "https://www.mizanonline.ir" + link;
-                
-                let img = "";
-                if (imgEl) {
-                  img = imgEl.getAttribute("data-src") || imgEl.getAttribute("src") || "";
-                }
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(htmlString, "text/html");
 
+          // انتخاب دقیق کارت‌های خبری بر اساس ساختار سایت میزان
+          const newsElements = doc.querySelectorAll("article, .news-item, .item, .box, .list-item, li, .card");
+          let extracted = [];
+
+          newsElements.forEach(el => {
+            const a = el.querySelector("a");
+            const imgEl = el.querySelector("img");
+            const titleEl = el.querySelector("h2, h3, h4, .title") || a;
+            const dateEl = el.querySelector(".date, time, .time");
+
+            if (a && titleEl && titleEl.textContent.trim().length > 5) {
+              let link = a.getAttribute("href");
+              if (link && !link.startsWith("http")) {
+                link = "https://www.mizanonline.ir" + link;
+              }
+
+              let img = "";
+              if (imgEl) {
+                img = imgEl.getAttribute("data-src") || imgEl.getAttribute("src") || "";
+              }
+
+              // فیلتر لینک‌های نامرتبط و مختص به خبرها
+              if (link && link.includes('/fa/news/')) {
                 extracted.push({
                   title: titleEl.textContent.trim(),
-                  link: link || "#",
+                  link: link,
                   pubDate: dateEl ? dateEl.textContent.trim() : new Date().toLocaleDateString('fa-IR'),
                   description: el.textContent.trim(),
                   image: img
                 });
               }
-            });
-
-            if (extracted.length > 0) {
-              return extracted;
             }
+          });
+
+          if (extracted.length > 0) {
+            const unique = Array.from(new Set(extracted.map(a => a.link)))
+              .map(link => extracted.find(a => a.link === link));
+            return unique;
           }
         } catch (e) {
           continue;
@@ -431,10 +406,6 @@
 
       newsData = rawItems.map(item => {
         let img = item.image || "";
-        if (!img && item.description) {
-          const m = item.description.match(/<img[^>]+src="([^">]+)"/);
-          if (m) img = m[1];
-        }
         const text = (item.description || "").replace(/<[^>]+>/g, "").trim();
 
         return {
@@ -531,7 +502,6 @@
         return;
       }
 
-      // بنر سینمایی عریض آخرین خبر در بالای صفحه (کاملاً مطابق تصویر ارسالی شما)
       if (items[0].image) {
         document.getElementById("spotlight-img").src = items[0].image;
         document.getElementById("spotlight-title").innerText = items[0].title;
@@ -554,11 +524,10 @@
       setTimeout(() => {
         const stream = document.getElementById("stream-box");
         const nextEnd = Math.min(displayedCount + batchSize, newsData.length);
-        
+
         for (let i = displayedCount; i < nextEnd; i++) {
           const entry = newsData[i];
           const card = document.createElement("div");
-          // گرافیک دقیق و فلت منطبق با تصویر ارسالی شما: کارت‌های عریض با تصویر نمایه در سمت چپ، عنوان و تاریخ در راست، و دکمه «مشاهده گزارش ←» در پایین
           card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
           card.onclick = () => openStoryReader(i);
 
@@ -734,7 +703,7 @@
         closeReader();
         homeBtn.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-white text-[10px]";
         saveBtn.className = "flex flex-col items-center gap-1 text-rose-500 text-[10px] font-bold relative";
-        
+
         const favs = getStoredFavs();
         newsData = favs;
         document.getElementById("spotlight-box").classList.add("hidden");
