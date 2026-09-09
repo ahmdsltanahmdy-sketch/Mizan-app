@@ -114,6 +114,7 @@
       </div>
     </div>
 
+    <!-- منوی تب‌ها متصل به لینک‌های دقیق و اختصاصی شما -->
     <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2.5 space-x-2 space-x-reverse text-xs">
       <button onclick="changeFeed('all', 'همه اخبار', this)" class="nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition bg-white/5 border border-white/10">همه اخبار</button>
       <button onclick="changeFeed('judiciary', 'قضایی', this)" class="nav-chip px-3.5 py-2 rounded-2xl text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/10">قضایی</button>
@@ -234,7 +235,7 @@
     tg.ready();
     tg.expand();
 
-    // لینک‌های کاملاً اختصاصی و مستقیم بر اساس سرویس‌های رسمی سایت میزان
+    // لینک‌های دقیق آرشیو و سرویس‌های رسمی سایت میزان
     const ENDPOINTS = {
       all: { url: "https://www.mizanonline.ir/fa/archive", name: "همه اخبار" },
       judiciary: { url: "https://www.mizanonline.ir/fa/services/17", name: "قضایی" },
@@ -243,7 +244,7 @@
       legal_magazine: { url: "https://www.mizanonline.ir/fa/services/16", name: "مجله حقوقی" },
       society: { url: "https://www.mizanonline.ir/fa/services/9", name: "جامعه" },
       politics: { url: "https://www.mizanonline.ir/fa/services/10", name: "سیاست" },
-      economy: { url: "https://www.mizanonline.ir/fa/services/10", name: "اقتصاد" },
+      economy: { url: "https://www.mizanonline.ir/fa/services/11", name: "اقتصاد" },
       culture: { url: "https://www.mizanonline.ir/fa/services/12", name: "فرهنگی" },
       sports: { url: "https://www.mizanonline.ir/fa/services/13", name: "ورزشی" },
       world: { url: "https://www.mizanonline.ir/fa/services/14", name: "جهان" },
@@ -295,29 +296,62 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // موتور اصلاح‌شده فچ و عبور از کش با پارامترهای زمان‌بندی تصادفی
+    // موتور دریافت مقاوم مجهز به فال‌بک RSS و پارامتر ضد کش
     async function fetchLiveNews(pageUrl, categoryKey) {
-      const uniqueParam = `_cb=${Date.now()}_${Math.floor(Math.random() * 999999)}`;
+      const uniqueParam = `_cb_live=${Date.now()}_${Math.floor(Math.random() * 100000)}`;
       const targetWithParam = pageUrl + (pageUrl.includes('?') ? '&' : '?') + uniqueParam;
 
+      // انتخاب فید RSS جایگزین متناسب با دسته‌بندی برای تضمین عملکرد همیشه فعال
+      let rssUrl = "https://www.mizanonline.ir/fa/rss/allnews";
+      if (categoryKey === 'judiciary') rssUrl = "https://www.mizanonline.ir/fa/rss/2";
+      else if (categoryKey === 'human_rights') rssUrl = "https://www.mizanonline.ir/fa/rss/7";
+      else if (categoryKey === 'legal_magazine') rssUrl = "https://www.mizanonline.ir/fa/rss/16";
+      else if (categoryKey === 'society') rssUrl = "https://www.mizanonline.ir/fa/rss/3";
+      else if (categoryKey === 'politics') rssUrl = "https://www.mizanonline.ir/fa/rss/1";
+      else if (categoryKey === 'economy') rssUrl = "https://www.mizanonline.ir/fa/rss/4";
+      else if (categoryKey === 'culture') rssUrl = "https://www.mizanonline.ir/fa/rss/5";
+      else if (categoryKey === 'sports') rssUrl = "https://www.mizanonline.ir/fa/rss/7";
+      else if (categoryKey === 'world') rssUrl = "https://www.mizanonline.ir/fa/rss/8";
+      else if (categoryKey === 'multimedia') rssUrl = "https://www.mizanonline.ir/fa/rss/6";
+
+      const rssProxy = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&_t=${Date.now()}`;
+
       const proxies = [
+        rssProxy,
         `https://api.allorigins.win/get?url=${encodeURIComponent(targetWithParam)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetWithParam)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetWithParam)}`
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetWithParam)}`
       ];
 
       for (const p of proxies) {
         try {
-          const res = await fetch(p, { 
-            cache: 'no-store', 
-            headers: { 
-              'Cache-Control': 'no-cache, no-store, must-revalidate',
-              'Pragma': 'no-cache'
-            } 
-          });
+          const res = await fetch(p, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
           if (!res.ok) continue;
 
           const text = await res.text();
+
+          // اگر از طریق rss2json نتیجه آمد
+          if (p.includes('rss2json')) {
+            const json = JSON.parse(text);
+            if (json.status === "ok" && json.items && json.items.length > 0) {
+              return json.items.map(item => {
+                let img = item.enclosure?.link || item.thumbnail || "";
+                if (!img && item.description) {
+                  const m = item.description.match(/<img[^>]+src="([^">]+)"/);
+                  if (m) img = m[1];
+                }
+                const cleanDesc = (item.description || "").replace(/<[^>]+>/g, "").trim();
+                return {
+                  title: item.title,
+                  link: item.link,
+                  pubDate: item.pubDate ? item.pubDate.split('T')[0] : new Date().toLocaleDateString('fa-IR'),
+                  description: cleanDesc,
+                  image: img
+                };
+              });
+            }
+          }
+
+          // اگر از طریق پروکسی HTML آمد
           let htmlString = text;
           if (p.includes('allorigins.win/get')) {
             try {
@@ -329,8 +363,7 @@
           const parser = new DOMParser();
           const doc = parser.parseFromString(htmlString, "text/html");
 
-          // اسکن دقیق المان‌های حاوی اخبار در صفحات سرویس‌ها
-          const newsElements = doc.querySelectorAll("article, .news-item, .item, .box, .list-item, li, .card, .story-item");
+          const newsElements = doc.querySelectorAll("article, .news-item, .item, .box, .list-item, li, .card");
           let extracted = [];
 
           newsElements.forEach(el => {
@@ -342,16 +375,9 @@
             if (a && titleEl && titleEl.textContent.trim().length > 5) {
               let link = a.getAttribute("href");
               if (link) {
-                if (!link.startsWith("http")) {
-                  link = "https://www.mizanonline.ir" + link;
-                }
+                if (!link.startsWith("http")) link = "https://www.mizanonline.ir" + link;
+                let img = imgEl ? (imgEl.getAttribute("data-src") || imgEl.getAttribute("src") || "") : "";
 
-                let img = "";
-                if (imgEl) {
-                  img = imgEl.getAttribute("data-src") || imgEl.getAttribute("src") || "";
-                }
-
-                // فیلتر هوشمند برای برداشتن فقط اخبار اصلی و حذف لینک‌های منو و فوتر
                 if (link.includes('/fa/news/')) {
                   extracted.push({
                     title: titleEl.textContent.trim(),
@@ -366,10 +392,7 @@
           });
 
           if (extracted.length > 0) {
-            // حذف موارد تکراری بر اساس لینک یکتا
-            const unique = Array.from(new Set(extracted.map(a => a.link)))
-              .map(link => extracted.find(a => a.link === link));
-            return unique;
+            return Array.from(new Set(extracted.map(a => a.link))).map(link => extracted.find(a => a.link === link));
           }
         } catch (e) {
           continue;
