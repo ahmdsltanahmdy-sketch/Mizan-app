@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -13,7 +14,7 @@
     :root {
       --bg-primary: #050b14;
       --card-bg: rgba(255, 255, 255, 0.035);
-      --card-border: rgba(255, 255, 255, 0.07);
+      --card-border: rgba(255, 255, 255, 0.08);
     }
     body {
       font-family: 'Vazirmatn', sans-serif;
@@ -34,7 +35,7 @@
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--card-border);
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      transition: transform 0.15s ease, background 0.15s ease;
+      transition: transform 0.12s ease, background 0.12s ease;
     }
     .glass-card:active {
       transform: scale(0.985);
@@ -50,7 +51,7 @@
     .shimmer {
       background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.03) 75%);
       background-size: 200% 100%;
-      animation: shimmerAnim 1.2s infinite linear;
+      animation: shimmerAnim 1s infinite linear;
     }
     @keyframes shimmerAnim {
       0% { background-position: 200% 0; }
@@ -67,7 +68,7 @@
 <body class="min-h-screen flex flex-col antialiased pb-28">
 
   <!-- پروگرس‌بار خواندن -->
-  <div id="reading-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-rose-500 to-red-600 z-50 transition-all duration-100 w-0"></div>
+  <div id="reading-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-rose-500 to-red-600 z-50 transition-all duration-75 w-0"></div>
 
   <!-- نوار خبر فوری متحرک بالای صفحه -->
   <div class="bg-gradient-to-r from-rose-950 via-red-950 to-slate-950 text-white text-[11px] px-3.5 py-1.5 flex items-center justify-between border-b border-rose-900/40 shadow-xl">
@@ -77,7 +78,7 @@
         <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
       </span>
       <span class="bg-rose-600/30 text-rose-300 border border-rose-500/30 text-[9px] font-black px-1.5 py-0.5 rounded shrink-0">آنلاین</span>
-      <span id="ticker-text" class="truncate text-slate-200 font-light text-[11px]">سیستم آماده بارگذاری آنی و پرسرعت اخبار میزان...</span>
+      <span id="ticker-text" class="truncate text-slate-200 font-light text-[11px]">سیستم بهینه‌سازی شده آماده بارگذاری آنی...</span>
     </div>
     <span id="live-time" class="text-[10px] text-slate-400 font-mono shrink-0 mr-2"></span>
   </div>
@@ -118,7 +119,7 @@
       </div>
     </div>
 
-    <!-- منوی تب‌ها به ترتیب دقیق درخواستی شما -->
+    <!-- منوی تب‌ها به ترتیب دقیق -->
     <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2.5 space-x-2 space-x-reverse text-xs">
       <button onclick="changeFeed('all', 'همه اخبار', this)" class="nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition bg-white/5 border border-white/10">همه اخبار</button>
       <button onclick="changeFeed('judiciary', 'قضایی', this)" class="nav-chip px-3.5 py-2 rounded-2xl text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/10">قضایی</button>
@@ -140,11 +141,11 @@
   <!-- بستر محتوا -->
   <main class="flex-1 px-4 pt-4 max-w-lg mx-auto w-full">
     
-    <!-- بنر عریض آخرین خبر دقیقاً مشابه تصویر ضمیمه شما برای تمام تب‌ها -->
+    <!-- بنر عریض آخرین خبر دقیقاً مشابه تصویر ارسالی شما با کادر کاملاً منطبق -->
     <section id="spotlight-box" class="mb-5 hidden">
       <div onclick="openStoryReader(0)" class="relative rounded-[28px] overflow-hidden border border-white/20 shadow-2xl cursor-pointer active:scale-[0.98] transition duration-200 group">
         <img id="spotlight-img" src="" alt="آخرین خبر" class="w-full h-60 object-cover group-hover:scale-105 transition duration-700" />
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-5">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent flex flex-col justify-end p-5">
           <div class="flex items-center gap-2.5 mb-2">
             <span class="bg-rose-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
@@ -158,7 +159,7 @@
       </div>
     </section>
 
-    <!-- لودینگ شیمر شیشه‌ای فوق‌سریع -->
+    <!-- لودینگ شیمر شیشه‌ای -->
     <div id="skeleton-box" class="space-y-4">
       <div class="w-full h-56 rounded-[28px] shimmer border border-white/5"></div>
       <div class="p-4 rounded-2xl glass-card space-y-3">
@@ -171,10 +172,10 @@
       </div>
     </div>
 
-    <!-- جریان اخبار پایین بنر (دقیقاً مشابه تصویر ارسالی با کادرهای عریض، عنوان در راست، تصویر کوچک در چپ و دکمه مشاهده گزارش) -->
+    <!-- جریان اخبار (دقیقاً مشابه تصویر ارسالی: کادر شیشه‌ای عریض، عنوان راست‌چین، تاریخ، و دکمه اختصاصی «مشاهده گزارش ←» در سمت چپ پایین همراه با عکس کوچک در سمت چپ کارت) -->
     <section id="stream-box" class="space-y-3.5 hidden"></section>
 
-    <!-- لودینگ اسکرول بی‌نهایت برای بارگذاری اخبار قدیمی‌تر -->
+    <!-- لودینگ اسکرول بی‌نهایت -->
     <div id="infinite-loader" class="hidden py-6 text-center">
       <div class="inline-block w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
       <span class="text-[11px] text-slate-400 mr-2">بارگذاری اخبار بیشتر...</span>
@@ -246,22 +247,22 @@
     tg.ready();
     tg.expand();
 
-    // لینک‌های جامع و کاملاً اصلاح‌شده برای دسترسی مستقیم به فیدهای بخش‌های مختلف میزان
+    // فیدهای اختصاصی به همراه لینک دقیق «وکیل آنلاین» به نشانی https://www.mizanonline.ir/fa/message
     const ENDPOINTS = {
       all: { url: "https://www.mizanonline.ir/fa/rss/allnews", name: "همه اخبار" },
       judiciary: { url: "https://www.mizanonline.ir/fa/rss/17", name: "قضایی" },
       human_rights: { url: "https://www.mizanonline.ir/fa/rss/7", name: "حقوق بشر" },
-      lawyer_online: { url: "https://www.mizanonline.ir/fa/rss/allnews", name: "وکیل آنلاین" }, // استفاده از فید عمومی برای جلوگیری از خطای خالی بودن
+      lawyer_online: { url: "https://www.mizanonline.ir/fa/rss/message", name: "وکیل آنلاین" },
       legal_magazine: { url: "https://www.mizanonline.ir/fa/rss/16", name: "مجله حقوقی" },
       society: { url: "https://www.mizanonline.ir/fa/rss/9", name: "جامعه" },
       politics: { url: "https://www.mizanonline.ir/fa/rss/10", name: "سیاست" },
-      economy: { url: "https://www.mizanonline.ir/fa/rss/4", name: "اقتصاد" },
+      economy: { url: "https://www.mizanonline.ir/fa/rss/10", name: "اقتصاد" },
       culture: { url: "https://www.mizanonline.ir/fa/rss/12", name: "فرهنگی" },
       sports: { url: "https://www.mizanonline.ir/fa/rss/13", name: "ورزشی" },
       world: { url: "https://www.mizanonline.ir/fa/rss/14", name: "جهان" },
       multimedia: { url: "https://www.mizanonline.ir/fa/rss/2", name: "چندرسانه‌ای" },
       infographic: { url: "https://www.mizanonline.ir/fa/rss/3", name: "اینفوگرافیک" },
-      photos: { url: "https://www.mizanonline.ir/fa/rss/10", name: "عکس" }
+      photos: { url: "https://www.mizanonline.ir/fa/rss/4", name: "عکس" }
     };
 
     let newsData = [];
@@ -273,6 +274,9 @@
     let isSpeaking = false;
     let isLoadingMore = false;
 
+    // حافظه پنهان محلی برای دسترسی آنی و بدون تأخیر (Instant Cache)
+    const feedCache = {};
+
     document.addEventListener("DOMContentLoaded", () => {
       startClock();
       changeFeed('all', 'همه اخبار', document.querySelector('.nav-chip'));
@@ -280,7 +284,6 @@
       tg.BackButton.onClick(() => closeReader());
       updateBookmarkDot();
 
-      // اسکرول بی‌نهایت برای بارگذاری خودکار اخبار قدیمی‌تر هنگام پایین رفتن صفحه
       window.addEventListener('scroll', () => {
         const total = document.documentElement.scrollHeight - window.innerHeight;
         if (total > 0) {
@@ -308,10 +311,13 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // موتور واکشی فوق‌سریع و بدون تأخیر با مکانیزم ضد کَش چندلایه
-    async function fetchLiveNews(feedUrl) {
-      const uniqueParam = `&_cb=${Date.now()}_${Math.random()}`;
-      
+    // موتور واکشی فوق‌سریع و مجهز به کش آنی برای حذف هرگونه تاخیر
+    async function fetchLiveNews(feedUrl, forceRefresh = false) {
+      if (!forceRefresh && feedCache[feedUrl]) {
+        return feedCache[feedUrl];
+      }
+
+      const uniqueParam = `&_cb=${Date.now()}`;
       const proxies = [
         `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${uniqueParam}`,
         `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl + (feedUrl.includes('?') ? '&' : '?') + 'nocache=' + Date.now())}`,
@@ -320,12 +326,13 @@
 
       for (const p of proxies) {
         try {
-          const res = await fetch(p, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
+          const res = await fetch(p, { cache: 'no-store' });
           if (!res.ok) continue;
 
           if (p.includes('rss2json')) {
             const json = await res.json();
             if (json.status === "ok" && json.items && json.items.length > 0) {
+              feedCache[feedUrl] = json.items;
               return json.items;
             }
           } else {
@@ -340,13 +347,15 @@
             const xml = new DOMParser().parseFromString(xmlString, "text/xml");
             const items = Array.from(xml.querySelectorAll("item"));
             if (items.length > 0) {
-              return items.map(i => ({
+              const mapped = items.map(i => ({
                 title: i.querySelector("title")?.textContent || "",
                 link: i.querySelector("link")?.textContent || "",
                 pubDate: i.querySelector("pubDate")?.textContent || "",
                 description: i.querySelector("description")?.textContent || "",
                 enclosure: { link: i.querySelector("enclosure")?.getAttribute("url") || "" }
               }));
+              feedCache[feedUrl] = mapped;
+              return mapped;
             }
           }
         } catch (e) {
@@ -356,7 +365,7 @@
       return [];
     }
 
-    async function changeFeed(key, name, btn) {
+    async function changeFeed(key, name, btn, forceRefresh = false) {
       triggerHaptic('medium');
       currentCategoryKey = key;
       currentCategoryName = name;
@@ -367,11 +376,21 @@
       if (btn) btn.className = "nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition";
 
       closeReader();
-      showSkeletons(true);
-
+      
+      // اگر دیتا در کش بود، بدون لودینگ شیمر نمایش بده تا سرعت صفر تا صد آنی باشد
       const target = ENDPOINTS[key] || ENDPOINTS.all;
-      const rawItems = await fetchLiveNews(target.url);
+      if (!forceRefresh && feedCache[target.url]) {
+        processNewsItems(feedCache[target.url], name);
+        return;
+      }
 
+      showSkeletons(true);
+      const rawItems = await fetchLiveNews(target.url, forceRefresh);
+      processNewsItems(rawItems, name);
+      showSkeletons(false);
+    }
+
+    function processNewsItems(rawItems, name) {
       newsData = rawItems.map(item => {
         let img = item.enclosure?.link || item.thumbnail || "";
         if (!img && item.description) {
@@ -396,14 +415,13 @@
 
       displayedCount = 0;
       renderInitialFeed(newsData);
-      showSkeletons(false);
     }
 
     function refreshCurrentFeed() {
       const icon = document.getElementById("refresh-icon");
       icon.classList.add("animate-spin");
       triggerHaptic('heavy');
-      changeFeed(currentCategoryKey, currentCategoryName, null).then(() => {
+      changeFeed(currentCategoryKey, currentCategoryName, null, true).then(() => {
         setTimeout(() => icon.classList.remove("animate-spin"), 400);
       });
     }
@@ -423,7 +441,7 @@
         return;
       }
 
-      // بنر عریض آخرین خبر در بالای صفحه برای تمام تب‌ها
+      // بنر عریض آخرین خبر دقیقاً مشابه تصویر ارسالی شما
       if (items[0].image) {
         document.getElementById("spotlight-img").src = items[0].image;
         document.getElementById("spotlight-title").innerText = items[0].title;
@@ -450,6 +468,7 @@
         for (let i = displayedCount; i < nextEnd; i++) {
           const entry = newsData[i];
           const card = document.createElement("div");
+          // گرافیک دقیق منطبق با تصویر ارسالی: کادر شیشه‌ای عریض، عنوان راست‌چین، تاریخ، و دکمه «مشاهده گزارش ←» در سمت چپ پایین همراه با عکس کوچک در سمت چپ
           card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
           card.onclick = () => openStoryReader(i);
 
@@ -472,7 +491,7 @@
         displayedCount = nextEnd;
         isLoadingMore = false;
         document.getElementById("infinite-loader").classList.add("hidden");
-      }, 150);
+      }, 100);
     }
 
     function openStoryReader(index) {
@@ -650,3 +669,5 @@
   </script>
 </body>
 </html>
+
+```
