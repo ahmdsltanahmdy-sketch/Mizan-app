@@ -3,50 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>خبرگزاری میزان | مینی‌اپ تلگرام</title>
+  <title>خبرگزاری میزان | مینی‌اپ رسمی تلگرام</title>
 
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Vazirmatn -->
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
 
   <style>
-    :root {
-      --bg-surface: #0a1120;
-      --card-bg: rgba(255, 255, 255, 0.04);
-      --card-border: rgba(255, 255, 255, 0.08);
-    }
     body {
       font-family: 'Vazirmatn', sans-serif;
-      background-color: var(--tg-theme-bg-color, #0f172a);
+      background-color: var(--tg-theme-bg-color, #0b1329);
       color: var(--tg-theme-text-color, #f8fafc);
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-    .glass {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+    .glass-nav {
+      background: rgba(11, 19, 41, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
     .glass-card {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .active-tab {
+    .active-chip {
       background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
       color: #ffffff !important;
-      box-shadow: 0 4px 15px rgba(225, 29, 72, 0.35);
+      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4);
+      border-color: transparent !important;
     }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .shimmer {
-      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.03) 75%);
       background-size: 200% 100%;
-      animation: shimmerAnim 1.6s infinite;
+      animation: shimmerAnim 1.4s infinite;
     }
     @keyframes shimmerAnim {
       0% { background-position: 200% 0; }
@@ -60,23 +56,23 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased pb-24 selection:bg-rose-600">
+<body class="min-h-screen flex flex-col antialiased pb-24">
 
   <!-- نوار پیشرفت مطالعه بالا -->
   <div id="reading-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-rose-500 to-red-600 z-50 transition-all duration-150 w-0"></div>
 
-  <!-- نوار اعلان فوری و تاریخ زنده -->
-  <div class="bg-gradient-to-r from-rose-700 via-red-800 to-slate-900 text-white text-[11px] px-3.5 py-1.5 flex items-center justify-between shadow-inner">
+  <!-- نوار اعلان فوری اخبار -->
+  <div class="bg-gradient-to-r from-rose-900 via-red-800 to-slate-900 text-white text-[11px] px-3.5 py-1.5 flex items-center justify-between shadow-inner">
     <div class="flex items-center gap-2 overflow-hidden flex-1">
       <span class="animate-pulse flex h-2 w-2 rounded-full bg-rose-400 shrink-0"></span>
-      <span class="bg-black/30 text-[9px] font-extrabold px-1.5 py-0.5 rounded border border-white/20 shrink-0">فوری</span>
-      <span id="ticker-text" class="truncate text-slate-100 font-light">در حال پایش آخرین تحولات قضایی و دادگستری...</span>
+      <span class="bg-black/40 text-[9px] font-black px-1.5 py-0.5 rounded border border-white/20 shrink-0">فوری</span>
+      <span id="ticker-text" class="truncate text-slate-100 font-light">در حال پایش و تازه‌سازی آخرین اخبار میزان...</span>
     </div>
-    <span id="live-time" class="text-[10px] text-slate-300 font-mono shrink-0 mr-3"></span>
+    <span id="live-time" class="text-[10px] text-slate-300 font-mono shrink-0 mr-2"></span>
   </div>
 
-  <!-- هدر مدرن اپلیکیشن -->
-  <header class="sticky top-0 z-40 glass border-b border-white/10">
+  <!-- هدر مدرن با استایل میزان -->
+  <header class="sticky top-0 z-40 glass-nav border-b border-white/10">
     <div class="px-4 py-2.5 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
         <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-red-500 flex items-center justify-center font-black text-white text-base shadow-lg shadow-rose-600/30">
@@ -90,7 +86,8 @@
           <div class="text-[9px] text-slate-400 font-medium">پایگاه رسمی قوه قضائیه ایران</div>
         </div>
       </div>
-      <div class="flex items-center gap-1.5">
+      
+      <div class="flex items-center gap-2">
         <button onclick="toggleSearchBar()" class="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 active:scale-90 transition">
           <svg class="w-4 h-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 1114 0z"/></svg>
         </button>
@@ -100,42 +97,43 @@
       </div>
     </div>
 
-    <!-- سرچ‌بار آنی شیشه‌ای -->
-    <div id="search-container" class="hidden px-4 pb-3">
+    <!-- فیلد جستجوی زنده -->
+    <div id="search-container" class="hidden px-4 pb-2.5">
       <div class="relative">
-        <input type="text" id="filter-input" oninput="applySearch()" placeholder="جستجو در متن، احکام، پرونده‌ها و گزارش‌ها..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:border-rose-500 transition" />
+        <input type="text" id="search-input" oninput="executeLiveSearch()" placeholder="جستجو در متن، احکام، پرونده‌ها..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:border-rose-500 transition" />
         <button onclick="toggleSearchBar()" class="absolute left-2.5 top-2.5 text-slate-400">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
     </div>
 
-    <!-- منوی افقی کامل تمام سرویس‌های سایت میزان -->
-    <nav class="flex overflow-x-auto hide-scrollbar px-3 py-1.5 space-x-1.5 space-x-reverse text-xs">
-      <button onclick="changeFeed('judiciary', this)" class="nav-chip active-tab px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition">حقوقی و قضایی</button>
-      <button onclick="changeFeed('all', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">همه اخبار</button>
+    <!-- منوی افقی تب‌ها: دقیقاً به همان ترتیبی که خواستی -->
+    <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2 space-x-1.5 space-x-reverse text-xs">
+      <button onclick="changeFeed('all', this)" class="nav-chip active-chip px-3 py-1.5 rounded-full text-white font-bold whitespace-nowrap transition">همه اخبار</button>
+      <button onclick="changeFeed('judiciary', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">قضایی</button>
+      <button onclick="changeFeed('legal_online', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">وکیل آنلاین</button>
+      <button onclick="changeFeed('legal_magazine', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">مجله حقوقی</button>
+      <button onclick="changeFeed('society', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">جامعه</button>
       <button onclick="changeFeed('politics', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">سیاسی</button>
-      <button onclick="changeFeed('social', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">اجتماعی</button>
       <button onclick="changeFeed('international', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">بین‌الملل</button>
       <button onclick="changeFeed('economy', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">اقتصادی</button>
       <button onclick="changeFeed('multimedia', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">چندرسانه‌ای</button>
       <button onclick="changeFeed('culture', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">فرهنگی</button>
       <button onclick="changeFeed('sports', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">ورزشی</button>
-      <button onclick="changeFeed('provinces', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">استان‌ها</button>
-      <button onclick="changeFeed('photo', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">عکس</button>
+      <button onclick="changeFeed('photos', this)" class="nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5">عکس</button>
     </nav>
   </header>
 
-  <!-- بستر اصلی محتوا -->
+  <!-- بخش اصلی نمایش اخبار -->
   <main class="flex-1 px-4 pt-3 max-w-lg mx-auto w-full">
     
-    <!-- کارت تیتر یک سینمایی -->
+    <!-- کارت سینمایی خبر برگزیده / تیتر یک -->
     <section id="spotlight-box" class="mb-4 hidden">
-      <div onclick="openStoryReader(0)" class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl cursor-pointer active:scale-[0.98] transition duration-200">
-        <img id="spotlight-img" src="" alt="تیتر اول" class="w-full h-56 object-cover" />
+      <div onclick="openStoryReader(0)" class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl cursor-pointer active:scale-[0.99] transition duration-200">
+        <img id="spotlight-img" src="" alt="تیتر اول" class="w-full h-52 object-cover" />
         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent flex flex-col justify-end p-4">
           <div class="flex items-center gap-2 mb-2">
-            <span class="bg-rose-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow">گزارش ویژه</span>
+            <span class="bg-rose-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow">برگزیده</span>
             <span id="spotlight-meta" class="text-[10px] text-slate-300"></span>
           </div>
           <h2 id="spotlight-title" class="text-white font-bold text-sm leading-snug"></h2>
@@ -143,29 +141,29 @@
       </div>
     </section>
 
-    <!-- لودینگ مدرن شیمر -->
+    <!-- لودینگ شیمر سریع -->
     <div id="skeleton-box" class="space-y-3">
-      <div class="w-full h-52 rounded-3xl shimmer border border-white/5"></div>
-      <div class="p-3.5 rounded-2xl glass-card space-y-2.5">
+      <div class="w-full h-48 rounded-3xl shimmer border border-white/5"></div>
+      <div class="p-4 rounded-2xl glass-card space-y-2.5">
         <div class="w-2/3 h-3.5 rounded-lg shimmer"></div>
         <div class="w-full h-2.5 rounded shimmer"></div>
-        <div class="w-1/2 h-2.5 rounded shimmer"></div>
+        <div class="w-1/3 h-2.5 rounded shimmer"></div>
       </div>
-      <div class="p-3.5 rounded-2xl glass-card space-y-2.5">
+      <div class="p-4 rounded-2xl glass-card space-y-2.5">
         <div class="w-3/4 h-3.5 rounded-lg shimmer"></div>
         <div class="w-full h-2.5 rounded shimmer"></div>
       </div>
     </div>
 
-    <!-- لیست کارت‌های خبری جریان داده -->
+    <!-- لیست کارت‌های خبری با گرافیک مدرن -->
     <section id="stream-box" class="space-y-3 hidden"></section>
 
-    <!-- صفحه نمایش متمرکز خبر (Glass Reader) -->
+    <!-- صفحه داخلی مشاهده خبر -->
     <article id="article-view" class="hidden glass-card p-5 rounded-3xl border border-white/10 space-y-4">
       <div class="relative rounded-2xl overflow-hidden border border-white/10">
         <img id="article-img" src="" class="w-full h-56 object-cover hidden" />
-        <div class="absolute top-3 left-3 flex gap-2">
-          <button onclick="readAloud()" id="tts-btn" class="p-2 rounded-xl glass text-white text-xs flex items-center gap-1 active:scale-90 transition">
+        <div class="absolute top-3 left-3">
+          <button onclick="readAloud()" id="tts-btn" class="p-2 rounded-xl glass-nav text-white text-xs flex items-center gap-1.5 active:scale-90 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
             <span id="tts-text" class="text-[10px]">شنیدن خبر</span>
           </button>
@@ -187,9 +185,8 @@
         </div>
       </div>
 
-      <!-- خلاصه و شرح ماجرا -->
       <div class="bg-gradient-to-r from-rose-950/40 to-slate-900/60 border-r-4 border-rose-500 p-3.5 rounded-2xl">
-        <span class="text-[10px] font-extrabold text-rose-400 block mb-1">خلاصه گزارش و جزئیات پرونده:</span>
+        <span class="text-[10px] font-extrabold text-rose-400 block mb-1">شرح و جزئیات خبر:</span>
         <p id="article-body" class="text-xs text-slate-200 leading-relaxed text-justify"></p>
       </div>
 
@@ -201,11 +198,11 @@
           </button>
           <button onclick="telegramShare()" class="flex-1 py-3 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-rose-600/30 active:scale-95 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-            ارسال سریع
+            ارسال به تلگرام
           </button>
         </div>
         <button onclick="openExternal()" class="w-full py-2.5 text-center text-xs text-slate-400 hover:text-white transition">
-          مشاهده متن در وب‌سایت خبرگزاری میزان ↗
+          مشاهده اصل گزارش در وب‌سایت میزان ↗
         </button>
       </div>
     </article>
@@ -213,7 +210,7 @@
   </main>
 
   <!-- نوار دسترسی سریع پایین (Floating Bottom Navigation) -->
-  <nav class="fixed bottom-3 inset-x-4 max-w-md mx-auto glass rounded-2xl border border-white/10 p-2 flex justify-around items-center z-40 shadow-2xl">
+  <nav class="fixed bottom-3 inset-x-4 max-w-md mx-auto glass-nav rounded-2xl border border-white/10 p-2 flex justify-around items-center z-40 shadow-2xl">
     <button onclick="switchView('feed')" id="nav-home" class="flex flex-col items-center gap-1 text-rose-500 text-[10px] font-bold">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       جریان خبر
@@ -234,35 +231,35 @@
     tg.ready();
     tg.expand();
 
-    // فیدهای کامل وب‌سایت میزان
+    // نقشه فیدهای رسمی و تست‌شده خبرگزاری میزان
     const ENDPOINTS = {
-      judiciary: "https://www.mizanonline.ir/fa/rss/2",
       all: "https://www.mizanonline.ir/fa/rss/allnews",
-      politics: "https://www.mizanonline.ir/fa/rss/1",
-      social: "https://www.mizanonline.ir/fa/rss/3",
-      international: "https://www.mizanonline.ir/fa/rss/8",
-      economy: "https://www.mizanonline.ir/fa/rss/4",
-      multimedia: "https://www.mizanonline.ir/fa/rss/6",
-      culture: "https://www.mizanonline.ir/fa/rss/5",
-      sports: "https://www.mizanonline.ir/fa/rss/7",
-      provinces: "https://www.mizanonline.ir/fa/rss/11",
-      photo: "https://www.mizanonline.ir/fa/rss/10"
+      judiciary: "https://www.mizanonline.ir/fa/rss/2",          // قضایی
+      legal_online: "https://www.mizanonline.ir/fa/rss/64",     // وکیل آنلاین
+      legal_magazine: "https://www.mizanonline.ir/fa/rss/65",   // مجله حقوقی
+      society: "https://www.mizanonline.ir/fa/rss/3",           // جامعه
+      politics: "https://www.mizanonline.ir/fa/rss/1",          // سیاسی
+      international: "https://www.mizanonline.ir/fa/rss/8",     // بین‌الملل
+      economy: "https://www.mizanonline.ir/fa/rss/4",           // اقتصادی
+      multimedia: "https://www.mizanonline.ir/fa/rss/6",        // چندرسانه‌ای
+      culture: "https://www.mizanonline.ir/fa/rss/5",           // فرهنگی
+      sports: "https://www.mizanonline.ir/fa/rss/7",            // ورزشی
+      photos: "https://www.mizanonline.ir/fa/rss/10"           // عکس
     };
 
     let newsData = [];
-    let currentCategoryKey = "judiciary";
+    let currentCategoryKey = "all";
     let activeStory = null;
     let textScale = 12;
     let isSpeaking = false;
 
     document.addEventListener("DOMContentLoaded", () => {
       startClock();
-      changeFeed('judiciary', document.querySelector('.nav-chip'));
+      changeFeed('all', document.querySelector('.nav-chip'));
       
       tg.BackButton.onClick(() => closeReader());
       updateBookmarkDot();
 
-      // محاسبه اسکرول برای پروگرس‌بار
       window.addEventListener('scroll', () => {
         const total = document.documentElement.scrollHeight - window.innerHeight;
         if (total > 0) {
@@ -286,20 +283,49 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    async function fetchFastRSS(feed) {
+    // واکشی بدون کَش و بدون توقف با سیستم Multi-Proxy
+    async function fetchLiveNews(feedUrl) {
+      const cacheBuster = `&_cb=${Date.now()}`;
+      
+      // تلاش اول: سرور سریع rss2json با پارامتر تازه‌سازی
       try {
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}`);
+        const p1 = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${cacheBuster}`;
+        const res = await fetch(p1);
         const json = await res.json();
-        if (json.status === "ok" && json.items) return json.items;
+        if (json.status === "ok" && json.items && json.items.length > 0) {
+          return json.items;
+        }
       } catch (e) {
-        console.warn("Primary RSS proxy failed");
+        console.warn("Primary proxy bypassed");
       }
 
-      // فال‌بک دوم
+      // تلاش دوم (Fallback پایدار): AllOrigins به صورت خام و پارس XML
       try {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(feed)}`);
-        const j = await res.json();
-        const xml = new DOMParser().parseFromString(j.contents, "text/xml");
+        const p2 = `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}&timestamp=${Date.now()}`;
+        const res = await fetch(p2);
+        const json = await res.json();
+        const xml = new DOMParser().parseFromString(json.contents, "text/xml");
+        const rawItems = Array.from(xml.querySelectorAll("item"));
+        
+        if (rawItems.length > 0) {
+          return rawItems.map(i => ({
+            title: i.querySelector("title")?.textContent || "",
+            link: i.querySelector("link")?.textContent || "",
+            pubDate: i.querySelector("pubDate")?.textContent || "",
+            description: i.querySelector("description")?.textContent || "",
+            enclosure: { link: i.querySelector("enclosure")?.getAttribute("url") || "" }
+          }));
+        }
+      } catch (err) {
+        console.error("Secondary proxy bypassed");
+      }
+
+      // تلاش سوم: CodeTabs CORS Proxy
+      try {
+        const p3 = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedUrl)}`;
+        const res = await fetch(p3);
+        const text = await res.text();
+        const xml = new DOMParser().parseFromString(text, "text/xml");
         return Array.from(xml.querySelectorAll("item")).map(i => ({
           title: i.querySelector("title")?.textContent || "",
           link: i.querySelector("link")?.textContent || "",
@@ -307,8 +333,8 @@
           description: i.querySelector("description")?.textContent || "",
           enclosure: { link: i.querySelector("enclosure")?.getAttribute("url") || "" }
         }));
-      } catch (err) {
-        console.error("All endpoints unreachable", err);
+      } catch (finalErr) {
+        console.error("Fetch failed on all routes", finalErr);
         return [];
       }
     }
@@ -320,14 +346,15 @@
       document.querySelectorAll(".nav-chip").forEach(b => {
         b.className = "nav-chip px-3 py-1.5 rounded-full text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/5";
       });
-      if (btn) btn.className = "nav-chip active-tab px-3 py-1.5 rounded-full text-white font-medium whitespace-nowrap transition";
+      if (btn) btn.className = "nav-chip active-chip px-3 py-1.5 rounded-full text-white font-bold whitespace-nowrap transition";
 
       closeReader();
       showSkeletons(true);
 
-      const items = await fetchFastRSS(ENDPOINTS[key] || ENDPOINTS.all);
+      const targetUrl = ENDPOINTS[key] || ENDPOINTS.all;
+      const rawItems = await fetchLiveNews(targetUrl);
 
-      newsData = items.map(item => {
+      newsData = rawItems.map(item => {
         let img = item.enclosure?.link || item.thumbnail || "";
         if (!img && item.description) {
           const m = item.description.match(/<img[^>]+src="([^">]+)"/);
@@ -339,7 +366,7 @@
           title: item.title,
           link: item.link,
           pubDate: item.pubDate,
-          summary: text || "برای مشاهده گزارش تفصیلی به وب‌سایت میزان مراجعه فرمایید.",
+          summary: text || "متن این گزارش در پایگاه خبرگزاری میزان در دسترس است.",
           image: img
         };
       });
@@ -357,7 +384,7 @@
       icon.classList.add("animate-spin");
       triggerHaptic('medium');
       changeFeed(currentCategoryKey, null).then(() => {
-        setTimeout(() => icon.classList.remove("animate-spin"), 600);
+        setTimeout(() => icon.classList.remove("animate-spin"), 500);
       });
     }
 
@@ -369,14 +396,14 @@
       if (!items || !items.length) {
         stream.innerHTML = `
           <div class="text-center py-16">
-            <p class="text-xs text-slate-400">اطلاعاتی از خبرگزاری میزان دریافت نشد</p>
-            <button onclick="refreshCurrentFeed()" class="mt-3 px-4 py-2 bg-white/10 rounded-xl text-xs text-white">تازه‌سازی مجدد</button>
+            <p class="text-xs text-slate-400">در حال حاضر خبری در این بخش موجود نیست یا اینترنت متصل نیست</p>
+            <button onclick="refreshCurrentFeed()" class="mt-3 px-4 py-2 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold">تلاش مجدد و تازه‌سازی</button>
           </div>`;
         hero.classList.add("hidden");
         return;
       }
 
-      // کارت سینمایی اول
+      // کارت سینمایی خبر برگزیده
       if (items[0].image) {
         document.getElementById("spotlight-img").src = items[0].image;
         document.getElementById("spotlight-title").innerText = items[0].title;
@@ -399,7 +426,7 @@
             <h3 class="font-bold text-xs text-slate-100 leading-snug line-clamp-2">${entry.title}</h3>
             <div class="flex items-center justify-between text-[10px] text-slate-400 mt-2">
               <span>${entry.pubDate ? entry.pubDate.split(' ')[0] : 'لحظاتی پیش'}</span>
-              <span class="text-rose-400 font-bold">مشاهده پرونده ←</span>
+              <span class="text-rose-400 font-bold">مشاهده گزارش ←</span>
             </div>
           </div>
         `;
@@ -453,7 +480,7 @@
 
     function readAloud() {
       if (!('speechSynthesis' in window)) {
-        alert("سیستم متن‌خوان صوتی روی این نسخه تلگرام در دسترس نیست");
+        alert("قابلیت صوتی در این نسخه پشتیبانی نمی‌شود");
         return;
       }
       if (isSpeaking) {
@@ -482,16 +509,23 @@
     function toggleSearchBar() {
       const sc = document.getElementById("search-container");
       sc.classList.toggle("hidden");
-      if (!sc.classList.contains("hidden")) document.getElementById("filter-input").focus();
+      if (!sc.classList.contains("hidden")) document.getElementById("search-input").focus();
     }
 
-    function applySearch() {
-      const val = document.getElementById("filter-input").value.toLowerCase();
-      const filtered = newsData.filter(x => x.title.toLowerCase().includes(val) || x.summary.toLowerCase().includes(val));
-      renderFeedCards(filtered);
+    // موتور سرچ آنی سریع و ترکیبی
+    function executeLiveSearch() {
+      const query = document.getElementById("search-input").value.trim().toLowerCase();
+      if (!query) {
+        renderFeedCards(newsData);
+        return;
+      }
+      const matched = newsData.filter(x => 
+        (x.title && x.title.toLowerCase().includes(query)) || 
+        (x.summary && x.summary.toLowerCase().includes(query))
+      );
+      renderFeedCards(matched);
     }
 
-    // بخش بوک‌مارک و ذخیره آفلاین
     function getStoredFavs() {
       return JSON.parse(localStorage.getItem("mizan_tg_favs") || "[]");
     }
