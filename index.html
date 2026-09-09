@@ -311,7 +311,6 @@
     async function fetchLiveNews(pageUrl, categoryKey) {
       const uniqueParam = `&_cb_live=${Date.now()}_${Math.random()}`;
       
-      // تبدیل لینک‌های صفحه به فید RSS معادل یا استفاده از پراکسی HTML Parser برای استخراج دقیق اخبار همان سرویس
       let rssTarget = pageUrl;
       if (categoryKey === 'all') rssTarget = "https://www.mizanonline.ir/fa/rss/allnews";
       else if (categoryKey === 'judiciary') rssTarget = "https://www.mizanonline.ir/fa/rss/2";
@@ -368,7 +367,6 @@
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlString, "text/html");
             
-            // استخراج هوشمند اخبار از ساختار HTML سایت میزان
             const newsElements = doc.querySelectorAll(".box, article, .news-item, .item, li");
             let extracted = [];
             
@@ -467,7 +465,6 @@
       });
     }
 
-    // رابط کاربری تعاملی برای وکیل آنلاین مبتنی بر آدرس https://www.mizanonline.ir/fa/message
     function renderLawyerOnlineInterface() {
       const stream = document.getElementById("stream-box");
       const hero = document.getElementById("spotlight-box");
