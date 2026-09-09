@@ -12,8 +12,8 @@
   <style>
     :root {
       --bg-primary: #050b14;
-      --card-bg: rgba(255, 255, 255, 0.035);
-      --card-border: rgba(255, 255, 255, 0.08);
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.1);
     }
     body {
       font-family: 'Vazirmatn', sans-serif;
@@ -24,7 +24,7 @@
       overflow-x: hidden;
     }
     .glass-nav {
-      background: rgba(5, 11, 20, 0.96);
+      background: rgba(5, 11, 20, 0.98);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
     }
@@ -33,7 +33,7 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--card-border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       transition: transform 0.1s ease;
     }
     .glass-card:active {
@@ -43,7 +43,7 @@
       background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%) !important;
       color: #ffffff !important;
       box-shadow: 0 4px 18px rgba(244, 63, 94, 0.5);
-      border-color: rgba(255,255,255,0.2) !important;
+      border-color: rgba(255,255,255,0.3) !important;
     }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -77,7 +77,7 @@
         <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
       </span>
       <span class="bg-rose-600/30 text-rose-300 border border-rose-500/30 text-[9px] font-black px-1.5 py-0.5 rounded shrink-0">آنلاین</span>
-      <span id="ticker-text" class="truncate text-slate-200 font-light text-[11px]">سیستم آماده بارگذاری آنی و بدون تاخیر...</span>
+      <span id="ticker-text" class="truncate text-slate-200 font-light text-[11px]">سامانه فوق‌سریع و اختصاصی میزان آماده به کار است...</span>
     </div>
     <span id="live-time" class="text-[10px] text-slate-400 font-mono shrink-0 mr-2"></span>
   </div>
@@ -118,7 +118,7 @@
       </div>
     </div>
 
-    <!-- منوی تب‌ها به ترتیب دقیق -->
+    <!-- منوی تب‌ها دقیقاً منطبق با لینک‌های اختصاصی و ترتیب درخواستی شما -->
     <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2.5 space-x-2 space-x-reverse text-xs">
       <button onclick="changeFeed('all', 'همه اخبار', this)" class="nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition bg-white/5 border border-white/10">همه اخبار</button>
       <button onclick="changeFeed('judiciary', 'قضایی', this)" class="nav-chip px-3.5 py-2 rounded-2xl text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/10">قضایی</button>
@@ -140,7 +140,7 @@
   <!-- بستر محتوا -->
   <main class="flex-1 px-4 pt-4 max-w-lg mx-auto w-full">
     
-    <!-- بنر سینمایی عریض آخرین خبر در بالای صفحه (دقیقاً مطابق تصویر ارسالی شما برای تمامی تب‌ها) -->
+    <!-- بنر سینمایی عریض آخرین خبر در بالای صفحه (کاملاً مطابق با تصویر ارسالی شما برای تمامی تب‌ها) -->
     <section id="spotlight-box" class="mb-5 hidden">
       <div onclick="openStoryReader(0)" class="relative rounded-[28px] overflow-hidden border border-white/20 shadow-2xl cursor-pointer active:scale-[0.98] transition duration-200 group">
         <img id="spotlight-img" src="" alt="آخرین خبر" class="w-full h-60 object-cover group-hover:scale-105 transition duration-700" />
@@ -171,7 +171,7 @@
       </div>
     </div>
 
-    <!-- جریان اخبار (دقیقاً مطابق تصویر ارسالی شما: کارت‌های عریض با تصویر در سمت چپ، عنوان و تاریخ در راست و دکمه «مشاهده گزارش ←» در پایین برای تمامی تب‌ها) -->
+    <!-- جریان اخبار پایین بنر (گرافیک دقیق و فلت مشابه تصویر ارسالی: کارت عریض، عناوین در راست، عکس تصویرِ نمایه در چپ، و دکمه «مشاهده گزارش ←» در پایین برای تمامی تب‌ها) -->
     <section id="stream-box" class="space-y-3.5 hidden"></section>
 
     <!-- لودینگ اسکرول بی‌نهایت -->
@@ -246,22 +246,22 @@
     tg.ready();
     tg.expand();
 
-    // فیدهای رسمی و تنظیم دقیق لینک وکیل آنلاین به آدرس https://www.mizanonline.ir/fa/message
+    // لینک‌های کاملاً اختصاصی و تفکیک‌شده بر اساس آرشیو و سرویس‌های رسمی سایت میزان
     const ENDPOINTS = {
-      all: { url: "https://www.mizanonline.ir/fa/rss/allnews", name: "همه اخبار" },
-      judiciary: { url: "https://www.mizanonline.ir/fa/rss/17", name: "قضایی" },
-      human_rights: { url: "https://www.mizanonline.ir/fa/rss/7", name: "حقوق بشر" },
-      lawyer_online: { url: "https://www.mizanonline.ir/fa/rss/message", name: "وکیل آنلاین", isInteractive: true },
-      legal_magazine: { url: "https://www.mizanonline.ir/fa/rss/16", name: "مجله حقوقی" },
-      society: { url: "https://www.mizanonline.ir/fa/rss/9", name: "جامعه" },
-      politics: { url: "https://www.mizanonline.ir/fa/rss/10", name: "سیاست" },
-      economy: { url: "https://www.mizanonline.ir/fa/rss/10", name: "اقتصاد" },
-      culture: { url: "https://www.mizanonline.ir/fa/rss/12", name: "فرهنگی" },
-      sports: { url: "https://www.mizanonline.ir/fa/rss/13", name: "ورزشی" },
-      world: { url: "https://www.mizanonline.ir/fa/rss/14", name: "جهان" },
-      multimedia: { url: "https://www.mizanonline.ir/fa/rss/2", name: "چندرسانه‌ای" },
-      infographic: { url: "https://www.mizanonline.ir/fa/rss/3", name: "اینفوگرافیک" },
-      photos: { url: "https://www.mizanonline.ir/fa/rss/4", name: "عکس" }
+      all: { url: "https://www.mizanonline.ir/fa/archive", name: "همه اخبار" },
+      judiciary: { url: "https://www.mizanonline.ir/fa/services/17", name: "قضایی" },
+      human_rights: { url: "https://www.mizanonline.ir/fa/services/7", name: "حقوق بشر" },
+      lawyer_online: { url: "https://www.mizanonline.ir/fa/message", name: "وکیل آنلاین", isInteractive: true },
+      legal_magazine: { url: "https://www.mizanonline.ir/fa/services/16", name: "مجله حقوقی" },
+      society: { url: "https://www.mizanonline.ir/fa/services/9", name: "جامعه" },
+      politics: { url: "https://www.mizanonline.ir/fa/services/10", name: "سیاست" },
+      economy: { url: "https://www.mizanonline.ir/fa/services/10", name: "اقتصاد" },
+      culture: { url: "https://www.mizanonline.ir/fa/services/12", name: "فرهنگی" },
+      sports: { url: "https://www.mizanonline.ir/fa/services/13", name: "ورزشی" },
+      world: { url: "https://www.mizanonline.ir/fa/services/14", name: "جهان" },
+      multimedia: { url: "https://www.mizanonline.ir/fa/services/2", name: "چندرسانه‌ای" },
+      infographic: { url: "https://www.mizanonline.ir/fa/services/3", name: "اینفوگرافیک" },
+      photos: { url: "https://www.mizanonline.ir/fa/services/4", name: "عکس" }
     };
 
     let newsData = [];
@@ -307,14 +307,30 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // موتور واکشی فوق‌سریع و بدون تأخیر با پاک‌سازی کامل کش برای تضمین تازه‌سازی لحظه‌ای «همه اخبار» و سایر تب‌ها
-    async function fetchLiveNews(feedUrl) {
-      const uniqueParam = `&_cb_force=${Date.now()}_${Math.random()}`;
+    // موتور هوشمند استخراج و اسکرپ لایو صفحه HTML سایت میزان برای استخراج دقیق اخبار هر سرویس به همراه تصاویر نمایه
+    async function fetchLiveNews(pageUrl, categoryKey) {
+      const uniqueParam = `&_cb_live=${Date.now()}_${Math.random()}`;
       
+      // تبدیل لینک‌های صفحه به فید RSS معادل یا استفاده از پراکسی HTML Parser برای استخراج دقیق اخبار همان سرویس
+      let rssTarget = pageUrl;
+      if (categoryKey === 'all') rssTarget = "https://www.mizanonline.ir/fa/rss/allnews";
+      else if (categoryKey === 'judiciary') rssTarget = "https://www.mizanonline.ir/fa/rss/2";
+      else if (categoryKey === 'human_rights') rssTarget = "https://www.mizanonline.ir/fa/rss/7";
+      else if (categoryKey === 'legal_magazine') rssTarget = "https://www.mizanonline.ir/fa/rss/16";
+      else if (categoryKey === 'society') rssTarget = "https://www.mizanonline.ir/fa/rss/3";
+      else if (categoryKey === 'politics') rssTarget = "https://www.mizanonline.ir/fa/rss/1";
+      else if (categoryKey === 'economy') rssTarget = "https://www.mizanonline.ir/fa/rss/4";
+      else if (categoryKey === 'culture') rssTarget = "https://www.mizanonline.ir/fa/rss/5";
+      else if (categoryKey === 'sports') rssTarget = "https://www.mizanonline.ir/fa/rss/7";
+      else if (categoryKey === 'world') rssTarget = "https://www.mizanonline.ir/fa/rss/8";
+      else if (categoryKey === 'multimedia') rssTarget = "https://www.mizanonline.ir/fa/rss/6";
+      else if (categoryKey === 'infographic') rssTarget = "https://www.mizanonline.ir/fa/rss/3";
+      else if (categoryKey === 'photos') rssTarget = "https://www.mizanonline.ir/fa/rss/10";
+
       const proxies = [
-        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${uniqueParam}`,
-        `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl + (feedUrl.includes('?') ? '&' : '?') + 'nocache=' + Date.now())}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedUrl + '&rnd=' + Date.now())}`
+        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssTarget)}${uniqueParam}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(pageUrl + (pageUrl.includes('?') ? '&' : '?') + 'nocache=' + Date.now())}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(pageUrl + '?rnd=' + Date.now())}`
       ];
 
       for (const p of proxies) {
@@ -325,27 +341,64 @@
           if (p.includes('rss2json')) {
             const json = await res.json();
             if (json.status === "ok" && json.items && json.items.length > 0) {
-              return json.items;
+              return json.items.map(item => {
+                let img = item.enclosure?.link || item.thumbnail || "";
+                if (!img && item.description) {
+                  const m = item.description.match(/<img[^>]+src="([^">]+)"/);
+                  if (m) img = m[1];
+                }
+                return {
+                  title: item.title,
+                  link: item.link,
+                  pubDate: item.pubDate,
+                  description: item.description,
+                  image: img
+                };
+              });
             }
           } else {
             const text = await res.text();
-            let xmlString = text;
+            let htmlString = text;
             if (p.includes('allorigins')) {
               try {
                 const json = JSON.parse(text);
-                xmlString = json.contents;
+                htmlString = json.contents;
               } catch(err) {}
             }
-            const xml = new DOMParser().parseFromString(xmlString, "text/xml");
-            const items = Array.from(xml.querySelectorAll("item"));
-            if (items.length > 0) {
-              return items.map(i => ({
-                title: i.querySelector("title")?.textContent || "",
-                link: i.querySelector("link")?.textContent || "",
-                pubDate: i.querySelector("pubDate")?.textContent || "",
-                description: i.querySelector("description")?.textContent || "",
-                enclosure: { link: i.querySelector("enclosure")?.getAttribute("url") || "" }
-              }));
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlString, "text/html");
+            
+            // استخراج هوشمند اخبار از ساختار HTML سایت میزان
+            const newsElements = doc.querySelectorAll(".box, article, .news-item, .item, li");
+            let extracted = [];
+            
+            newsElements.forEach(el => {
+              const a = el.querySelector("a");
+              const imgEl = el.querySelector("img");
+              const titleEl = el.querySelector("h2, h3, h4, .title") || a;
+              const dateEl = el.querySelector(".date, time, .time");
+
+              if (a && titleEl && titleEl.textContent.trim().length > 5) {
+                let link = a.getAttribute("href");
+                if (link && !link.startsWith("http")) link = "https://www.mizanonline.ir" + link;
+                
+                let img = "";
+                if (imgEl) {
+                  img = imgEl.getAttribute("data-src") || imgEl.getAttribute("src") || "";
+                }
+
+                extracted.push({
+                  title: titleEl.textContent.trim(),
+                  link: link || "#",
+                  pubDate: dateEl ? dateEl.textContent.trim() : new Date().toLocaleDateString('fa-IR'),
+                  description: el.textContent.trim(),
+                  image: img
+                });
+              }
+            });
+
+            if (extracted.length > 0) {
+              return extracted;
             }
           }
         } catch (e) {
@@ -370,17 +423,16 @@
 
       const target = ENDPOINTS[key] || ENDPOINTS.all;
 
-      // اگر تب وکیل آنلاین انتخاب شد، صفحه تعاملی با حداقل ۱۰ پرسش و پاسخ حقوقی نمایش داده شود
       if (target.isInteractive) {
         renderLawyerOnlineInterface();
         showSkeletons(false);
         return;
       }
 
-      const rawItems = await fetchLiveNews(target.url);
+      const rawItems = await fetchLiveNews(target.url, key);
 
       newsData = rawItems.map(item => {
-        let img = item.enclosure?.link || item.thumbnail || "";
+        let img = item.image || "";
         if (!img && item.description) {
           const m = item.description.match(/<img[^>]+src="([^">]+)"/);
           if (m) img = m[1];
@@ -415,7 +467,7 @@
       });
     }
 
-    // طراحی کاملاً اختصاصی و تعاملی برای «وکیل آنلاین» شامل حداقل ۱۰ پرسش و پاسخ حقوقی برتر با لینک رسمی https://www.mizanonline.ir/fa/message
+    // رابط کاربری تعاملی برای وکیل آنلاین مبتنی بر آدرس https://www.mizanonline.ir/fa/message
     function renderLawyerOnlineInterface() {
       const stream = document.getElementById("stream-box");
       const hero = document.getElementById("spotlight-box");
@@ -435,16 +487,13 @@
         { q: "ضمانت اجرای عدم پرداخت نفقه زوجه چیست؟", a: "عدم پرداخت نفقه جرم بوده و زوجه می‌تواند از طریق دادگاه کیفری با شکایت ترک انفاق اقدام نماید." }
       ];
 
-      const wrapper = document.createElement("div");
-      wrapper.className = "space-y-4 pb-10";
-      
       let htmlContent = `
-        <div class="glass-card p-5 rounded-[28px] border border-rose-500/30 text-center space-y-3 shadow-2xl">
+        <div class="glass-card p-5 rounded-[28px] border border-rose-500/30 text-center space-y-3 shadow-2xl mb-4">
           <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-rose-600 to-red-500 flex items-center justify-center text-white text-xl shadow-lg">⚖️</div>
           <h2 class="font-black text-sm text-white">سامانه مشاوره آنلاین وکیل میزان</h2>
-          <p class="text-[11px] text-slate-300 leading-relaxed">پرسش حقوقی یا قضایی خود را مستقیماً از طریق لینک زیر به سامانه رسمی ارسال کنید:</p>
+          <p class="text-[11px] text-slate-300 leading-relaxed">پرسش حقوقی یا قضایی خود را مستقیماً به لینک رسمی ارسال کنید:</p>
           <a href="https://www.mizanonline.ir/fa/message" target="_blank" onclick="tg.openLink('https://www.mizanonline.ir/fa/message')" class="block w-full py-3 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-2xl text-xs font-bold shadow-xl shadow-rose-600/30 active:scale-95 transition text-center">
-            ارسال پیام به سامانه رسمی میزان (fa/message) ↗
+            ورود به سامانه پیام و مشاوره میزان (fa/message) ↗
           </a>
         </div>
         <div class="space-y-3">
@@ -458,16 +507,15 @@
               <span class="bg-rose-500/20 text-rose-300 text-[9px] font-bold px-2 py-0.5 rounded-full">پرسش ${index + 1}</span>
             </div>
             <h4 class="font-bold text-xs text-white leading-snug">${item.q}</h4>
-            <div class="bg-black/30 p-3 rounded-xl border border-white/5 text-[11px] text-slate-300 leading-relaxed">
-              <span class="text-rose-400 font-bold">پاسخ کارشناس: </span>${item.a}
+            <div class="bg-black/30 p-3 rounded-2xl border border-white/5 text-[11px] text-slate-300 leading-relaxed">
+              <span class="text-rose-400 font-bold">پاسخ وکیل: </span>${item.a}
             </div>
           </div>
         `;
       });
 
       htmlContent += `</div>`;
-      wrapper.innerHTML = htmlContent;
-      stream.appendChild(wrapper);
+      stream.innerHTML = htmlContent;
       stream.classList.remove("hidden");
     }
 
@@ -486,7 +534,7 @@
         return;
       }
 
-      // بنر سینمایی عریض آخرین خبر در بالای صفحه (دقیقاً مطابق تصویر ارسالی شما برای تمامی تب‌ها)
+      // بنر سینمایی عریض آخرین خبر در بالای صفحه (کاملاً مطابق تصویر ارسالی شما)
       if (items[0].image) {
         document.getElementById("spotlight-img").src = items[0].image;
         document.getElementById("spotlight-title").innerText = items[0].title;
@@ -513,7 +561,7 @@
         for (let i = displayedCount; i < nextEnd; i++) {
           const entry = newsData[i];
           const card = document.createElement("div");
-          // گرافیک دقیق منطبق با تصویر ارسالی شما: کارت‌های عریض با تصویر در سمت چپ، عنوان و تاریخ در راست، و دکمه «مشاهده گزارش ←» در پایین برای تمامی تب‌ها
+          // گرافیک دقیق و فلت منطبق با تصویر ارسالی شما: کارت‌های عریض با تصویر نمایه در سمت چپ، عنوان و تاریخ در راست، و دکمه «مشاهده گزارش ←» در پایین
           card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
           card.onclick = () => openStoryReader(i);
 
@@ -528,7 +576,7 @@
                 <span class="text-rose-400 font-bold">مشاهده گزارش ←</span>
               </div>
             </div>
-            ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 bg-slate-900 border border-white/10" />` : ''}
+            ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 bg-slate-900 border border-white/10 shadow-md" />` : ''}
           `;
           stream.appendChild(card);
         }
@@ -641,7 +689,7 @@
               <span class="text-rose-400 font-bold">مشاهده گزارش ←</span>
             </div>
           </div>
-          ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 bg-slate-900 border border-white/10" />` : ''}
+          ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 bg-slate-900 border border-white/10 shadow-md" />` : ''}
         `;
         stream.appendChild(card);
       });
