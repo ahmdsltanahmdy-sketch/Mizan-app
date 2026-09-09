@@ -297,7 +297,7 @@
     }
 
     async function fetchLiveNews(rssUrl, categoryKey) {
-      const targetUrl = `${GOOGLE_SCRIPT_URL}?url=${encodeURIComponent(rssUrl)}&_nocache=${Date.now()}`;
+      const targetUrl = `${GOOGLE_SCRIPT_URL}?url=${encodeURIComponent(rssUrl)}&_cb=${Date.now()}`;
       
       try {
         const res = await fetch(targetUrl, { cache: 'no-store' });
@@ -463,7 +463,6 @@
         for (let i = displayedCount; i < nextEnd; i++) {
           const entry = newsData[i];
           const card = document.createElement("div");
-          // گرافیک استاندارد فلت عریض: تصویر در سمت چپ، متن در سمت راست
           card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
           card.onclick = () => openStoryReader(i);
 
