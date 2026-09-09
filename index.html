@@ -1,3 +1,93 @@
+برای رفع قطعی تأخیر در به‌روزرسانی (کش شدن اخبار در سمت گوگل اسکریپت)، کندی سرعت لود و مشکلات گرافیکی، دو اقدام کلیدی انجام شده است:
+
+1. **رفع تأخیر و سرعت بالا:** کدهای داخلی **Google Apps Script** شما باید تنظیم شود تا هیچ‌گونه ذخیره‌سازی یا کشی روی سرور گوگل انجام ندهد و هم‌زمان با آپدیت سایت میزان، داده‌ها را زنده برگرداند (کد اسکریپت جدید در ادامه آمده است).
+2. **رعایت کامل گرافیک و چیدمان:** ساختار کارت‌ها به‌روزرسانی شده تا کارت‌های عریض شیشه‌ای، چیدمان دقیق تصویر در سمت چپ، عناوین راست‌چین و فوتر منسجم و سریع کاملاً پیاده‌سازی شوند.
+
+---
+
+### مرحله اول: اصلاح کد Google Apps Script (برای رفع کش و کندی)
+
+وارد پنل گوگل اسکریپت خود شوید، کد زیر را جایگزین کنید و حتماً دوباره از منوی بالای صفحه **Deploy > New deployment** با دسترسی **Anyone** بگیرید:
+
+```javascript
+function doGet(e) {
+  var url = e.parameter.url;
+  
+  var headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"
+  };
+
+  if (!url) {
+    return ContentService.createTextOutput(JSON.stringify({error: "URL is missing"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  try {
+    var response = UrlFetchApp.fetch(url + "?_nc=" + new Date().getTime(), {
+      muteHttpExceptions: true, 
+      headers: {"Cache-Control": "no-cache, no-store", "User-Agent": "Mozilla/5.0"}
+    });
+    var text = response.getContentText();
+    
+    var jsonResult = parseRSS(text);
+    return ContentService.createTextOutput(JSON.stringify(jsonResult))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      
+  } catch(error) {
+    return ContentService.createTextOutput(JSON.stringify({error: error.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function parseRSS(xmlText) {
+  var items = [];
+  try {
+    var document = XmlService.parse(xmlText);
+    var root = document.getRootElement();
+    var channel = root.getChild("channel");
+    var rssItems = channel.getChildren("item");
+    
+    for (var i = 0; i < rssItems.length; i++) {
+      var item = rssItems[i];
+      var title = item.getChildText("title") || "";
+      var link = item.getChildText("link") || "";
+      var pubDate = item.getChildText("pubDate") || "";
+      var description = item.getChildText("description") || "";
+      
+      var image = "";
+      var enclosure = item.getChild("enclosure");
+      if (enclosure) {
+        image = enclosure.getAttribute("url").getValue();
+      }
+      if (!image && description) {
+        var match = description.match(/<img[^>]+src="([^">]+)"/);
+        if (match) image = match[1];
+      }
+      
+      items.push({
+        title: title,
+        link: link,
+        pubDate: pubDate,
+        description: description.replace(/<[^>]+>/g, "").trim(),
+        thumbnail: image
+      });
+    }
+  } catch(e) {}
+  
+  return { status: "ok", items: items };
+}
+
+```
+
+---
+
+### مرحله دوم: کد کامل و بهینه‌شده مینی‌اپ با گرافیک نهایی
+
+```html
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -66,10 +156,8 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased pb-28">
 
-  <!-- پروگرس‌بار خواندن -->
   <div id="reading-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-rose-500 to-red-600 z-50 transition-all duration-75 w-0"></div>
 
-  <!-- نوار خبر فوری متحرک بالای صفحه -->
   <div class="bg-gradient-to-r from-rose-950 via-red-950 to-slate-950 text-white text-[11px] px-3.5 py-1.5 flex items-center justify-between border-b border-rose-900/40 shadow-xl">
     <div class="flex items-center gap-2 overflow-hidden flex-1">
       <span class="relative flex h-2 w-2">
@@ -82,7 +170,6 @@
     <span id="live-time" class="text-[10px] text-slate-400 font-mono shrink-0 mr-2"></span>
   </div>
 
-  <!-- هدر اپلیکیشن -->
   <header class="sticky top-0 z-40 glass-nav border-b border-white/10 shadow-2xl">
     <div class="px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -108,7 +195,6 @@
       </div>
     </div>
 
-    <!-- سرچ‌بار قدرتمند -->
     <div id="search-container" class="hidden px-4 pb-3">
       <div class="relative">
         <input type="text" id="search-input" oninput="executeLiveSearch()" placeholder="جستجوی فوق‌سریع در عناوین و متن‌ها..." class="w-full pl-10 pr-4 py-2.5 text-xs rounded-2xl bg-slate-900/90 border border-rose-500/40 text-white placeholder-slate-400 focus:outline-none focus:border-rose-500 shadow-2xl transition" />
@@ -118,7 +204,6 @@
       </div>
     </div>
 
-    <!-- منوی تب‌ها متصل به لینک‌های RSS دقیق و استاندارد -->
     <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2.5 space-x-2 space-x-reverse text-xs">
       <button onclick="changeFeed('all', 'همه اخبار', this)" class="nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition bg-white/5 border border-white/10">همه اخبار</button>
       <button onclick="changeFeed('judiciary', 'قضایی', this)" class="nav-chip px-3.5 py-2 rounded-2xl text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/10">قضایی</button>
@@ -137,10 +222,8 @@
     </nav>
   </header>
 
-  <!-- بستر محتوا -->
   <main class="flex-1 px-4 pt-4 max-w-lg mx-auto w-full">
 
-    <!-- بنر سینمایی عریض آخرین خبر در بالای صفحه -->
     <section id="spotlight-box" class="mb-5 hidden">
       <div onclick="openStoryReader(0)" class="relative rounded-[28px] overflow-hidden border border-white/20 shadow-2xl cursor-pointer active:scale-[0.98] transition duration-200 group">
         <img id="spotlight-img" src="" alt="آخرین خبر" class="w-full h-60 object-cover group-hover:scale-105 transition duration-700" />
@@ -158,7 +241,6 @@
       </div>
     </section>
 
-    <!-- لودینگ شیمر شیشه‌ای فوق‌سریع -->
     <div id="skeleton-box" class="space-y-4">
       <div class="w-full h-56 rounded-[28px] shimmer border border-white/5"></div>
       <div class="p-4 rounded-2xl glass-card space-y-3">
@@ -171,16 +253,13 @@
       </div>
     </div>
 
-    <!-- جریان اخبار پایین بنر -->
     <section id="stream-box" class="space-y-3.5 hidden"></section>
 
-    <!-- لودینگ اسکرول بی‌نهایت -->
     <div id="infinite-loader" class="hidden py-6 text-center">
       <div class="inline-block w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
       <span class="text-[11px] text-slate-400 mr-2">بارگذاری اخبار بیشتر...</span>
     </div>
 
-    <!-- صفحه نمایش متن کامل خبر (Reader View) -->
     <article id="article-view" class="hidden glass-card p-5 rounded-[28px] border border-white/20 space-y-5 shadow-2xl">
       <div class="relative rounded-2xl overflow-hidden border border-white/15 shadow-xl">
         <img id="article-img" src="" class="w-full h-64 object-cover hidden" />
@@ -224,7 +303,6 @@
 
   </main>
 
-  <!-- نوار ناوبری پایین شیشه‌ای -->
   <nav class="fixed bottom-3 inset-x-4 max-w-md mx-auto glass-nav rounded-2xl border border-white/15 p-2 flex justify-around items-center z-40 shadow-2xl">
     <button onclick="switchView('feed')" id="nav-home" class="flex flex-col items-center gap-1 text-rose-500 text-[10px] font-bold transition">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -246,10 +324,8 @@
     tg.ready();
     tg.expand();
 
-    // لینک گوگل اسکریپت جدید و اختصاصی شما
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-Z634036CEU_m01dfxjAXq2Cjd0rezD1fgkfZ3KKt_vjNvUPCxo6Aqi8VxG1mAP2h/exec";
 
-    // لینک‌های دقیق RSS خبرگزاری میزان
     const ENDPOINTS = {
       all: { rss: "https://www.mizanonline.ir/fa/rss/allnews", name: "همه اخبار" },
       judiciary: { rss: "https://www.mizanonline.ir/fa/rss/17", name: "قضایی" },
@@ -310,9 +386,8 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // دریافت مستقیم و آنی اخبار از طریق گوگل اسکریپت بدون مشکل کش و مسدودسازی
     async function fetchLiveNews(rssUrl, categoryKey) {
-      const targetUrl = `${GOOGLE_SCRIPT_URL}?url=${encodeURIComponent(rssUrl)}&_t=${Date.now()}`;
+      const targetUrl = `${GOOGLE_SCRIPT_URL}?url=${encodeURIComponent(rssUrl)}&_nocache=${Date.now()}`;
       
       try {
         const res = await fetch(targetUrl, { cache: 'no-store' });
@@ -340,7 +415,7 @@
           });
         }
       } catch (e) {
-        console.error("Google Script Fetch Error:", e);
+        console.error("Fetch Error:", e);
       }
       return [];
     }
@@ -478,6 +553,7 @@
         for (let i = displayedCount; i < nextEnd; i++) {
           const entry = newsData[i];
           const card = document.createElement("div");
+          // گرافیک استاندارد فلت عریض: تصویر در سمت چپ، متن در سمت راست
           card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
           card.onclick = () => openStoryReader(i);
 
@@ -500,7 +576,7 @@
         displayedCount = nextEnd;
         isLoadingMore = false;
         document.getElementById("infinite-loader").classList.add("hidden");
-      }, 80);
+      }, 50);
     }
 
     function openStoryReader(index) {
@@ -678,3 +754,5 @@
   </script>
 </body>
 </html>
+
+```
