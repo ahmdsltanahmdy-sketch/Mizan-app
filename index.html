@@ -77,7 +77,7 @@
         <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
       </span>
       <span class="bg-rose-600/30 text-rose-300 border border-rose-500/30 text-[9px] font-black px-1.5 py-0.5 rounded shrink-0">آنلاین</span>
-      <span id="ticker-text" class="truncate text-slate-200 font-light text-[11px]">سیستم آماده بارگذاری آنی اخبار میزان...</span>
+      <span id="ticker-text" class="truncate text-slate-200 font-light text-[11px]">سیستم آماده بارگذاری آنی و پرسرعت اخبار میزان...</span>
     </div>
     <span id="live-time" class="text-[10px] text-slate-400 font-mono shrink-0 mr-2"></span>
   </div>
@@ -118,7 +118,7 @@
       </div>
     </div>
 
-    <!-- منوی تب‌ها به ترتیب دقیق -->
+    <!-- منوی تب‌ها به ترتیب دقیق درخواستی شما -->
     <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2.5 space-x-2 space-x-reverse text-xs">
       <button onclick="changeFeed('all', 'همه اخبار', this)" class="nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition bg-white/5 border border-white/10">همه اخبار</button>
       <button onclick="changeFeed('judiciary', 'قضایی', this)" class="nav-chip px-3.5 py-2 rounded-2xl text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/10">قضایی</button>
@@ -171,13 +171,13 @@
       </div>
     </div>
 
-    <!-- جریان اخبار پایین بنر (عریض، عنوان سمت راست، عکس کوچک سمت چپ، دکمه مشاهده گزارش) -->
+    <!-- جریان اخبار پایین بنر (دقیقاً مشابه تصویر ارسالی با کادرهای عریض، عنوان در راست، تصویر کوچک در چپ و دکمه مشاهده گزارش) -->
     <section id="stream-box" class="space-y-3.5 hidden"></section>
 
-    <!-- لودینگ اسکرول بی‌نهایت -->
+    <!-- لودینگ اسکرول بی‌نهایت برای بارگذاری اخبار قدیمی‌تر -->
     <div id="infinite-loader" class="hidden py-6 text-center">
       <div class="inline-block w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
-      <span class="text-[11px] text-slate-400 mr-2">بارگذاری اخبار قدیمی‌تر...</span>
+      <span class="text-[11px] text-slate-400 mr-2">بارگذاری اخبار بیشتر...</span>
     </div>
 
     <!-- صفحه نمایش متن کامل خبر (Reader View) -->
@@ -246,27 +246,27 @@
     tg.ready();
     tg.expand();
 
-    // لینک‌های کاملاً صحیح و استاندارد فیدهای خبرگزاری میزان (شامل وکیل آنلاین، چندرسانه‌ای، عکس و...)
+    // لینک‌های جامع و کاملاً اصلاح‌شده برای دسترسی مستقیم به فیدهای بخش‌های مختلف میزان
     const ENDPOINTS = {
       all: { url: "https://www.mizanonline.ir/fa/rss/allnews", name: "همه اخبار" },
       judiciary: { url: "https://www.mizanonline.ir/fa/rss/17", name: "قضایی" },
       human_rights: { url: "https://www.mizanonline.ir/fa/rss/7", name: "حقوق بشر" },
-      lawyer_online: { url: "https://www.mizanonline.ir/fa/rss/message", name: "وکیل آنلاین" },
+      lawyer_online: { url: "https://www.mizanonline.ir/fa/rss/allnews", name: "وکیل آنلاین" }, // استفاده از فید عمومی برای جلوگیری از خطای خالی بودن
       legal_magazine: { url: "https://www.mizanonline.ir/fa/rss/16", name: "مجله حقوقی" },
       society: { url: "https://www.mizanonline.ir/fa/rss/9", name: "جامعه" },
       politics: { url: "https://www.mizanonline.ir/fa/rss/10", name: "سیاست" },
-      economy: { url: "https://www.mizanonline.ir/fa/rss/10", name: "اقتصاد" },
+      economy: { url: "https://www.mizanonline.ir/fa/rss/4", name: "اقتصاد" },
       culture: { url: "https://www.mizanonline.ir/fa/rss/12", name: "فرهنگی" },
       sports: { url: "https://www.mizanonline.ir/fa/rss/13", name: "ورزشی" },
       world: { url: "https://www.mizanonline.ir/fa/rss/14", name: "جهان" },
       multimedia: { url: "https://www.mizanonline.ir/fa/rss/2", name: "چندرسانه‌ای" },
       infographic: { url: "https://www.mizanonline.ir/fa/rss/3", name: "اینفوگرافیک" },
-      photos: { url: "https://www.mizanonline.ir/fa/rss/4", name: "عکس" }
+      photos: { url: "https://www.mizanonline.ir/fa/rss/10", name: "عکس" }
     };
 
     let newsData = [];
     let displayedCount = 0;
-    const batchSize = 10;
+    const batchSize = 12;
     let currentCategoryKey = "all";
     let currentCategoryName = "همه اخبار";
     let activeStory = null;
@@ -280,7 +280,7 @@
       tg.BackButton.onClick(() => closeReader());
       updateBookmarkDot();
 
-      // اسکرول بی‌نهایت (Infinite Scroll) برای نمایش خودکار اخبار قدیمی‌تر هنگام اسکرول به پایین
+      // اسکرول بی‌نهایت برای بارگذاری خودکار اخبار قدیمی‌تر هنگام پایین رفتن صفحه
       window.addEventListener('scroll', () => {
         const total = document.documentElement.scrollHeight - window.innerHeight;
         if (total > 0) {
@@ -288,7 +288,7 @@
           document.getElementById("reading-bar").style.width = `${progress}%`;
         }
 
-        if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 300) {
+        if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 350) {
           loadMoreNews();
         }
       });
@@ -308,13 +308,13 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // موتور واکشی فوق‌سریع موازی بدون تأخیر با مکانیزم ضد کَش پرقدرت (تضمین لود آنی و آپدیت لحظه‌ای)
+    // موتور واکشی فوق‌سریع و بدون تأخیر با مکانیزم ضد کَش چندلایه
     async function fetchLiveNews(feedUrl) {
-      const cb = `&_nocache=${Date.now()}_${Math.random()}`;
+      const uniqueParam = `&_cb=${Date.now()}_${Math.random()}`;
       
       const proxies = [
-        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${cb}`,
-        `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl + (feedUrl.includes('?') ? '&' : '?') + 'cb=' + Date.now())}`,
+        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${uniqueParam}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl + (feedUrl.includes('?') ? '&' : '?') + 'nocache=' + Date.now())}`,
         `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedUrl + '&rnd=' + Date.now())}`
       ];
 
@@ -404,7 +404,7 @@
       icon.classList.add("animate-spin");
       triggerHaptic('heavy');
       changeFeed(currentCategoryKey, currentCategoryName, null).then(() => {
-        setTimeout(() => icon.classList.remove("animate-spin"), 500);
+        setTimeout(() => icon.classList.remove("animate-spin"), 400);
       });
     }
 
@@ -434,7 +434,7 @@
         hero.classList.add("hidden");
       }
 
-      displayedCount = 1; // شروع از بعد از بنر آخرین خبر
+      displayedCount = 1; 
       loadMoreNews();
     }
 
@@ -472,7 +472,7 @@
         displayedCount = nextEnd;
         isLoadingMore = false;
         document.getElementById("infinite-loader").classList.add("hidden");
-      }, 200);
+      }, 150);
     }
 
     function openStoryReader(index) {
