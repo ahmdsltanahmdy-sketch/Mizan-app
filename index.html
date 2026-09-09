@@ -114,7 +114,7 @@
       </div>
     </div>
 
-    <!-- منوی تب‌ها کاملاً منطبق با لینک‌های RSS دقیق شما -->
+    <!-- منوی تب‌ها متصل به لینک‌های RSS اصلی -->
     <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2.5 space-x-2 space-x-reverse text-xs">
       <button onclick="changeFeed('all', 'همه اخبار', this)" class="nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition bg-white/5 border border-white/10">همه اخبار</button>
       <button onclick="changeFeed('judiciary', 'قضایی', this)" class="nav-chip px-3.5 py-2 rounded-2xl text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/10">قضایی</button>
@@ -235,7 +235,7 @@
     tg.ready();
     tg.expand();
 
-    // اتصال دقیق تب‌ها به لینک‌های RSS رسمی و آرشیو خبرگزاری میزان
+    // اتصال دقیق تب‌ها به لینک‌های RSS رسمی و جدید خبرگزاری میزان
     const ENDPOINTS = {
       all: { rss: "https://www.mizanonline.ir/fa/rss/allnews", name: "همه اخبار" },
       judiciary: { rss: "https://www.mizanonline.ir/fa/rss/17", name: "قضایی" },
@@ -296,12 +296,13 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // موتور دریافت فوق‌سریع و پایدار مبتنی بر RSS اختصاصی با پارامتر ضد کش
+    // موتور دریافت لحظه‌ای با اجتناب کامل از کش پروکسی و دریافت آپدیت‌های آنی
     async function fetchLiveNews(rssUrl, categoryKey) {
-      const cacheBustUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&_cb=${Date.now()}_${Math.floor(Math.random() * 99999)}`;
+      const antiCacheUrl = `${rssUrl}?_cb=${Date.now()}_${Math.floor(Math.random() * 999999)}`;
+      const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(antiCacheUrl)}&_t=${Date.now()}`;
       
       try {
-        const res = await fetch(cacheBustUrl, { cache: 'no-store' });
+        const res = await fetch(proxyUrl, { cache: 'no-store' });
         if (!res.ok) return [];
         const json = await res.json();
 
@@ -313,10 +314,26 @@
               if (m) img = m[1];
             }
             const cleanDesc = (item.description || "").replace(/<[^>]+>/g, "").trim();
+            
+            // استخراج ساعت و تاریخ تمیز برای نمایش لحظه‌ای
+            let pubFormatted = "";
+            if (item.pubDate) {
+              try {
+                const parts = item.pubDate.split(' ');
+                if (parts.length > 1) {
+                  pubFormatted = parts[1].substring(0, 5); // ساعت
+                } else {
+                  pubFormatted = item.pubDate;
+                }
+              } catch(e) {
+                pubFormatted = "امروز";
+              }
+            }
+
             return {
               title: item.title,
               link: item.link,
-              pubDate: item.pubDate ? item.pubDate.split(' ')[0] : new Date().toLocaleDateString('fa-IR'),
+              pubDate: pubFormatted || "امروز",
               summary: cleanDesc || "مشاهده متن کامل این گزارش در پایگاه خبرگزاری میزان.",
               image: img,
               categoryName: currentCategoryName
