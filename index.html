@@ -140,7 +140,7 @@
   <!-- بستر محتوا -->
   <main class="flex-1 px-4 pt-4 max-w-lg mx-auto w-full">
     
-    <!-- بنر عریض آخرین خبر دقیقاً مشابه تصویر ارسالی شما -->
+    <!-- بنر سینمایی عریض آخرین خبر در بالای صفحه (دقیقاً مطابق تصویر ارسالی شما برای تمامی تب‌ها) -->
     <section id="spotlight-box" class="mb-5 hidden">
       <div onclick="openStoryReader(0)" class="relative rounded-[28px] overflow-hidden border border-white/20 shadow-2xl cursor-pointer active:scale-[0.98] transition duration-200 group">
         <img id="spotlight-img" src="" alt="آخرین خبر" class="w-full h-60 object-cover group-hover:scale-105 transition duration-700" />
@@ -171,7 +171,7 @@
       </div>
     </div>
 
-    <!-- جریان اخبار (Stream Box) -->
+    <!-- جریان اخبار (دقیقاً مطابق تصویر ارسالی شما: کارت‌های عریض با تصویر در سمت چپ، عنوان و تاریخ در راست و دکمه «مشاهده گزارش ←» در پایین برای تمامی تب‌ها) -->
     <section id="stream-box" class="space-y-3.5 hidden"></section>
 
     <!-- لودینگ اسکرول بی‌نهایت -->
@@ -251,7 +251,7 @@
       all: { url: "https://www.mizanonline.ir/fa/rss/allnews", name: "همه اخبار" },
       judiciary: { url: "https://www.mizanonline.ir/fa/rss/17", name: "قضایی" },
       human_rights: { url: "https://www.mizanonline.ir/fa/rss/7", name: "حقوق بشر" },
-      lawyer_online: { url: "https://www.mizanonline.ir/fa/rss/allnews", name: "وکیل آنلاین", isInteractive: true },
+      lawyer_online: { url: "https://www.mizanonline.ir/fa/rss/message", name: "وکیل آنلاین", isInteractive: true },
       legal_magazine: { url: "https://www.mizanonline.ir/fa/rss/16", name: "مجله حقوقی" },
       society: { url: "https://www.mizanonline.ir/fa/rss/9", name: "جامعه" },
       politics: { url: "https://www.mizanonline.ir/fa/rss/10", name: "سیاست" },
@@ -307,18 +307,19 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // موتور واکشی فوق‌سریع بدون کوچک‌ترین تأخیر و حذف کامل کش برای اطمینان از تازه‌سازی لحظه‌ای
+    // موتور واکشی فوق‌سریع و بدون تأخیر با پاک‌سازی کامل کش برای تضمین تازه‌سازی لحظه‌ای «همه اخبار» و سایر تب‌ها
     async function fetchLiveNews(feedUrl) {
-      const cb = `&_t=${Date.now()}_${Math.random()}`;
+      const uniqueParam = `&_cb_force=${Date.now()}_${Math.random()}`;
+      
       const proxies = [
-        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${cb}`,
-        `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl + '?_=' + Date.now())}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedUrl + '?rnd=' + Date.now())}`
+        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${uniqueParam}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl + (feedUrl.includes('?') ? '&' : '?') + 'nocache=' + Date.now())}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedUrl + '&rnd=' + Date.now())}`
       ];
 
       for (const p of proxies) {
         try {
-          const res = await fetch(p, { cache: 'no-store' });
+          const res = await fetch(p, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' } });
           if (!res.ok) continue;
 
           if (p.includes('rss2json')) {
@@ -369,7 +370,7 @@
 
       const target = ENDPOINTS[key] || ENDPOINTS.all;
 
-      // اگر تب وکیل آنلاین انتخاب شد، صفحه تعاملی پرسش و پاسخ تخصصی را بارگذاری کن
+      // اگر تب وکیل آنلاین انتخاب شد، صفحه تعاملی با حداقل ۱۰ پرسش و پاسخ حقوقی نمایش داده شود
       if (target.isInteractive) {
         renderLawyerOnlineInterface();
         showSkeletons(false);
@@ -414,39 +415,58 @@
       });
     }
 
-    // طراحی اختصاصی و تعاملی برای صفحه «وکیل آنلاین» (مبتنی بر آدرس https://www.mizanonline.ir/fa/message)
+    // طراحی کاملاً اختصاصی و تعاملی برای «وکیل آنلاین» شامل حداقل ۱۰ پرسش و پاسخ حقوقی برتر با لینک رسمی https://www.mizanonline.ir/fa/message
     function renderLawyerOnlineInterface() {
       const stream = document.getElementById("stream-box");
       const hero = document.getElementById("spotlight-box");
       hero.classList.add("hidden");
       stream.innerHTML = "";
 
+      const qaList = [
+        { q: "نحوه تنظیم شکواییه الکترونیکی در سامانه ثنا چگونه است؟", a: "از طریق مراجعه به دفاتر خدمات الکترونیک قضایی یا سامانه ابلاغ الکترونیک ثنا با رمز شخصی قابل اقدام است." },
+        { q: "شرایط قانونی تعدیل اقساط مهریه چیست؟", a: "زوج باید با ارائه دادخواست اعسار و شهادت شهود، عدم توانایی مالی خود را در پرداخت یکجای مهریه ثابت کند." },
+        { q: "مراحل قانونی اعتراض به رای دادگاه بدوی چیست؟", a: "اعتراض یا همان تجدیدنظرخواهی ظرف ۲۰ روز از تاریخ ابلاغ رای از طریق دفاتر خدمات الکترونیک قضایی ثبت می‌شود." },
+        { q: "حکم قانونی توهین و فحاشی در پیام رسان‌ها چیست؟", a: "مطابق قانون جرایم رایانه‌ای، توهین و فحاشی در فضای مجازی مشمول مجازات جزای نقدی یا حبس تعزیری است." },
+        { q: "حق حبس زن در دریافت مهریه به چه صورت است؟", a: "زن می‌تواند تا زمانی که مهریه کامل به او پرداخت نشده، از تمکین عام وخاص خودداری کند مشروط بر اینکه تمکین خاص انجام نشده باشد." },
+        { q: "نحوه مطالبه حقوق معوقه کارگران از طریق اداره کار چگونه است؟", a: "ثبت‌نام در سامانه جامع روابط کار و تقدیم دادخواست به هیأت تشخیص اداره کار محل اشتغال." },
+        { q: "شرایط قانونی فسخ قرارداد اجاره توسط موجر چیست؟", a: "عدم پرداخت اجاره‌بها بیش از سه ماه، انتقال به غیر بدون اجازه، یا استفاده نامشروع از مورد اجاره." },
+        { q: "آیا سابقه کیفری موثر مانع از استخدام دولتی می‌شود؟", a: "بله، جرایم عمدی خاصی که موجب محرومیت از حقوق اجتماعی شوند مانع استخدام در دستگاه‌های دولتی هستند." },
+        { q: "مراحل قانونی مطالبه چک برگشتی چیست؟", a: "صدور گواهینامه عدم پرداخت از بانک محال‌علیه و سپس اقدام از طریق اجرای ثبت یا دادگاه حقوقی/کیفری." },
+        { q: "ضمانت اجرای عدم پرداخت نفقه زوجه چیست؟", a: "عدم پرداخت نفقه جرم بوده و زوجه می‌تواند از طریق دادگاه کیفری با شکایت ترک انفاق اقدام نماید." }
+      ];
+
       const wrapper = document.createElement("div");
       wrapper.className = "space-y-4 pb-10";
-      wrapper.innerHTML = `
+      
+      let htmlContent = `
         <div class="glass-card p-5 rounded-[28px] border border-rose-500/30 text-center space-y-3 shadow-2xl">
           <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-rose-600 to-red-500 flex items-center justify-center text-white text-xl shadow-lg">⚖️</div>
           <h2 class="font-black text-sm text-white">سامانه مشاوره آنلاین وکیل میزان</h2>
-          <p class="text-[11px] text-slate-300 leading-relaxed">پرسش حقوقی یا قضایی خود را ارسال کنید تا کارشناسان حقوقی و قضایی در کوتاه‌ترین زمان پاسخ دهند.</p>
+          <p class="text-[11px] text-slate-300 leading-relaxed">پرسش حقوقی یا قضایی خود را مستقیماً از طریق لینک زیر به سامانه رسمی ارسال کنید:</p>
           <a href="https://www.mizanonline.ir/fa/message" target="_blank" onclick="tg.openLink('https://www.mizanonline.ir/fa/message')" class="block w-full py-3 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-2xl text-xs font-bold shadow-xl shadow-rose-600/30 active:scale-95 transition text-center">
-            ورود به سامانه رسمی پیام و مشاوره میزان ↗
+            ارسال پیام به سامانه رسمی میزان (fa/message) ↗
           </a>
         </div>
+        <div class="space-y-3">
+          <h3 class="font-bold text-xs text-rose-400 px-1">مجموعه ۱۰ پرسش و پاسخ حقوقی برتر:</h3>
+      `;
 
-        <div class="glass-card p-4 rounded-2xl space-y-3">
-          <h3 class="font-bold text-xs text-rose-400">آخرین پرسش و پاسخ‌های حقوقی برگزیده:</h3>
-          <div class="space-y-2.5 text-xs text-slate-200">
-            <div class="bg-black/30 p-3 rounded-xl border border-white/5 space-y-1">
-              <span class="font-bold text-white text-[11px]">❓ نحوه تنظیم شکواییه الکترونیکی چگونه است؟</span>
-              <p class="text-[11px] text-slate-300">پاسخ کارشناس: از طریق سامانه ثنا و دفاتر خدمات الکترونیک قضایی قابل پیگیری است...</p>
+      qaList.forEach((item, index) => {
+        htmlContent += `
+          <div class="glass-card p-4 rounded-2xl border border-white/10 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="bg-rose-500/20 text-rose-300 text-[9px] font-bold px-2 py-0.5 rounded-full">پرسش ${index + 1}</span>
             </div>
-            <div class="bg-black/30 p-3 rounded-xl border border-white/5 space-y-1">
-              <span class="font-bold text-white text-[11px]">❓ شرایط تعدیل اقساط مهریه چیست؟</span>
-              <p class="text-[11px] text-slate-300">پاسخ کارشناس: با اثبات عسر و حصر مالی و عدم توانایی پرداخت در دادگاه خانواده بررسی می‌شود...</p>
+            <h4 class="font-bold text-xs text-white leading-snug">${item.q}</h4>
+            <div class="bg-black/30 p-3 rounded-xl border border-white/5 text-[11px] text-slate-300 leading-relaxed">
+              <span class="text-rose-400 font-bold">پاسخ کارشناس: </span>${item.a}
             </div>
           </div>
-        </div>
-      `;
+        `;
+      });
+
+      htmlContent += `</div>`;
+      wrapper.innerHTML = htmlContent;
       stream.appendChild(wrapper);
       stream.classList.remove("hidden");
     }
@@ -466,7 +486,7 @@
         return;
       }
 
-      // بنر عریض آخرین خبر دقیقاً مشابه تصویر ارسالی شما
+      // بنر سینمایی عریض آخرین خبر در بالای صفحه (دقیقاً مطابق تصویر ارسالی شما برای تمامی تب‌ها)
       if (items[0].image) {
         document.getElementById("spotlight-img").src = items[0].image;
         document.getElementById("spotlight-title").innerText = items[0].title;
@@ -493,7 +513,7 @@
         for (let i = displayedCount; i < nextEnd; i++) {
           const entry = newsData[i];
           const card = document.createElement("div");
-          // گرافیک دقیق منطبق با تصویر ارسالی شما: کادر شیشه‌ای عریض، عنوان راست‌چین، تاریخ، تصویر کوچک در سمت چپ و دکمه مشاهده گزارش در پایین
+          // گرافیک دقیق منطبق با تصویر ارسالی شما: کارت‌های عریض با تصویر در سمت چپ، عنوان و تاریخ در راست، و دکمه «مشاهده گزارش ←» در پایین برای تمامی تب‌ها
           card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
           card.onclick = () => openStoryReader(i);
 
