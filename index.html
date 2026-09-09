@@ -246,10 +246,10 @@
     tg.ready();
     tg.expand();
 
-    // لینک وب‌اپلیکیشن گوگل اسکریپت اختصاصی شما
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8HUH2xdcq5t2BSu_UV4st6kWEUNS3gpSfpgeTukCxpiGvOfBK9Gf_-VoXE6O-kB6_gQ/exec";
+    // لینک گوگل اسکریپت جدید و اختصاصی شما
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-Z634036CEU_m01dfxjAXq2Cjd0rezD1fgkfZ3KKt_vjNvUPCxo6Aqi8VxG1mAP2h/exec";
 
-    // لینک‌های دقیق RSS که ارسال کرده بودید
+    // لینک‌های دقیق RSS خبرگزاری میزان
     const ENDPOINTS = {
       all: { rss: "https://www.mizanonline.ir/fa/rss/allnews", name: "همه اخبار" },
       judiciary: { rss: "https://www.mizanonline.ir/fa/rss/17", name: "قضایی" },
@@ -478,7 +478,6 @@
         for (let i = displayedCount; i < nextEnd; i++) {
           const entry = newsData[i];
           const card = document.createElement("div");
-          // گرافیک دقیق و فلت: کارت‌های عریض با تصویر در سمت چپ، متن در سمت راست و دکمه راهنما
           card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
           card.onclick = () => openStoryReader(i);
 
