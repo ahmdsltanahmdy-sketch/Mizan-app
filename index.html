@@ -24,7 +24,7 @@
       overflow-x: hidden;
     }
     .glass-nav {
-      background: rgba(5, 11, 20, 0.92);
+      background: rgba(5, 11, 20, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
     }
@@ -77,7 +77,7 @@
         <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
       </span>
       <span class="bg-rose-600/30 text-rose-300 border border-rose-500/30 text-[9px] font-black px-1.5 py-0.5 rounded shrink-0">آنلاین</span>
-      <span id="ticker-text" class="truncate text-slate-200 font-light text-[11px]">سیستم آماده بارگذاری پرسرعت اخبار میزان...</span>
+      <span id="ticker-text" class="truncate text-slate-200 font-light text-[11px]">سیستم آماده بارگذاری آنی اخبار میزان...</span>
     </div>
     <span id="live-time" class="text-[10px] text-slate-400 font-mono shrink-0 mr-2"></span>
   </div>
@@ -118,7 +118,7 @@
       </div>
     </div>
 
-    <!-- منوی تب‌ها به ترتیب دقیق و لینک‌های فید کاملاً اصلاح‌شده -->
+    <!-- منوی تب‌ها به ترتیب دقیق -->
     <nav class="flex overflow-x-auto hide-scrollbar px-3 py-2.5 space-x-2 space-x-reverse text-xs">
       <button onclick="changeFeed('all', 'همه اخبار', this)" class="nav-chip active-chip px-3.5 py-2 rounded-2xl text-white font-bold whitespace-nowrap transition bg-white/5 border border-white/10">همه اخبار</button>
       <button onclick="changeFeed('judiciary', 'قضایی', this)" class="nav-chip px-3.5 py-2 rounded-2xl text-slate-300 font-medium whitespace-nowrap transition bg-white/5 border border-white/10">قضایی</button>
@@ -140,7 +140,7 @@
   <!-- بستر محتوا -->
   <main class="flex-1 px-4 pt-4 max-w-lg mx-auto w-full">
     
-    <!-- بنر عریض آخرین خبر دقیقاً مشابه تصویر ارسالی شما -->
+    <!-- بنر عریض آخرین خبر دقیقاً مشابه تصویر ضمیمه شما برای تمام تب‌ها -->
     <section id="spotlight-box" class="mb-5 hidden">
       <div onclick="openStoryReader(0)" class="relative rounded-[28px] overflow-hidden border border-white/20 shadow-2xl cursor-pointer active:scale-[0.98] transition duration-200 group">
         <img id="spotlight-img" src="" alt="آخرین خبر" class="w-full h-60 object-cover group-hover:scale-105 transition duration-700" />
@@ -171,8 +171,14 @@
       </div>
     </div>
 
-    <!-- جریان اخبار پایین بنر (دقیقاً مشابه تصویر ارسالی با کادرهای عریض، عنوان سمت راست و عکس کوچک در سمت چپ همراه دکمه مشاهده گزارش) -->
+    <!-- جریان اخبار پایین بنر (عریض، عنوان سمت راست، عکس کوچک سمت چپ، دکمه مشاهده گزارش) -->
     <section id="stream-box" class="space-y-3.5 hidden"></section>
+
+    <!-- لودینگ اسکرول بی‌نهایت -->
+    <div id="infinite-loader" class="hidden py-6 text-center">
+      <div class="inline-block w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-[11px] text-slate-400 mr-2">بارگذاری اخبار قدیمی‌تر...</span>
+    </div>
 
     <!-- صفحه نمایش متن کامل خبر (Reader View) -->
     <article id="article-view" class="hidden glass-card p-5 rounded-[28px] border border-white/20 space-y-5 shadow-2xl">
@@ -240,7 +246,7 @@
     tg.ready();
     tg.expand();
 
-    // فیدهای کاملاً اصلاح‌شده و اختصاصی مطابق با لینک‌های صحیح سایت میزان
+    // لینک‌های کاملاً صحیح و استاندارد فیدهای خبرگزاری میزان (شامل وکیل آنلاین، چندرسانه‌ای، عکس و...)
     const ENDPOINTS = {
       all: { url: "https://www.mizanonline.ir/fa/rss/allnews", name: "همه اخبار" },
       judiciary: { url: "https://www.mizanonline.ir/fa/rss/17", name: "قضایی" },
@@ -259,10 +265,13 @@
     };
 
     let newsData = [];
+    let displayedCount = 0;
+    const batchSize = 10;
     let currentCategoryKey = "all";
     let currentCategoryName = "همه اخبار";
     let activeStory = null;
     let isSpeaking = false;
+    let isLoadingMore = false;
 
     document.addEventListener("DOMContentLoaded", () => {
       startClock();
@@ -271,11 +280,16 @@
       tg.BackButton.onClick(() => closeReader());
       updateBookmarkDot();
 
+      // اسکرول بی‌نهایت (Infinite Scroll) برای نمایش خودکار اخبار قدیمی‌تر هنگام اسکرول به پایین
       window.addEventListener('scroll', () => {
         const total = document.documentElement.scrollHeight - window.innerHeight;
         if (total > 0) {
           const progress = (window.scrollY / total) * 100;
           document.getElementById("reading-bar").style.width = `${progress}%`;
+        }
+
+        if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 300) {
+          loadMoreNews();
         }
       });
     });
@@ -294,53 +308,51 @@
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(type);
     }
 
-    // موتور واکشی فوق‌سریع موازی بدون تأخیر با مکانیزم ضد کش قدرتمند (Anti-Cache Instant Fetcher)
+    // موتور واکشی فوق‌سریع موازی بدون تأخیر با مکانیزم ضد کَش پرقدرت (تضمین لود آنی و آپدیت لحظه‌ای)
     async function fetchLiveNews(feedUrl) {
-      const uniqueParam = `&_cb=${Date.now()}_${Math.random()}`;
+      const cb = `&_nocache=${Date.now()}_${Math.random()}`;
       
-      // تلاش اول: rss2json
-      try {
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${uniqueParam}`, { cache: 'no-store' });
-        const json = await res.json();
-        if (json.status === "ok" && json.items && json.items.length > 0) {
-          return json.items;
-        }
-      } catch (e) {}
+      const proxies = [
+        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}${cb}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl + (feedUrl.includes('?') ? '&' : '?') + 'cb=' + Date.now())}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedUrl + '&rnd=' + Date.now())}`
+      ];
 
-      // تلاش دوم: allorigins با زمان‌سنجی یکتا
-      try {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl + (feedUrl.includes('?') ? '&' : '?') + 'nocache=' + Date.now())}`, { cache: 'no-store' });
-        const json = await res.json();
-        const xml = new DOMParser().parseFromString(json.contents, "text/xml");
-        const items = Array.from(xml.querySelectorAll("item"));
-        if (items.length > 0) {
-          return items.map(i => ({
-            title: i.querySelector("title")?.textContent || "",
-            link: i.querySelector("link")?.textContent || "",
-            pubDate: i.querySelector("pubDate")?.textContent || "",
-            description: i.querySelector("description")?.textContent || "",
-            enclosure: { link: i.querySelector("enclosure")?.getAttribute("url") || "" }
-          }));
-        }
-      } catch (e) {}
+      for (const p of proxies) {
+        try {
+          const res = await fetch(p, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
+          if (!res.ok) continue;
 
-      // تلاش سوم: codetabs
-      try {
-        const res = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feedUrl + '&rnd=' + Date.now())}`, { cache: 'no-store' });
-        const text = await res.text();
-        const xml = new DOMParser().parseFromString(text, "text/xml");
-        const items = Array.from(xml.querySelectorAll("item"));
-        if (items.length > 0) {
-          return items.map(i => ({
-            title: i.querySelector("title")?.textContent || "",
-            link: i.querySelector("link")?.textContent || "",
-            pubDate: i.querySelector("pubDate")?.textContent || "",
-            description: i.querySelector("description")?.textContent || "",
-            enclosure: { link: i.querySelector("enclosure")?.getAttribute("url") || "" }
-          }));
+          if (p.includes('rss2json')) {
+            const json = await res.json();
+            if (json.status === "ok" && json.items && json.items.length > 0) {
+              return json.items;
+            }
+          } else {
+            const text = await res.text();
+            let xmlString = text;
+            if (p.includes('allorigins')) {
+              try {
+                const json = JSON.parse(text);
+                xmlString = json.contents;
+              } catch(err) {}
+            }
+            const xml = new DOMParser().parseFromString(xmlString, "text/xml");
+            const items = Array.from(xml.querySelectorAll("item"));
+            if (items.length > 0) {
+              return items.map(i => ({
+                title: i.querySelector("title")?.textContent || "",
+                link: i.querySelector("link")?.textContent || "",
+                pubDate: i.querySelector("pubDate")?.textContent || "",
+                description: i.querySelector("description")?.textContent || "",
+                enclosure: { link: i.querySelector("enclosure")?.getAttribute("url") || "" }
+              }));
+            }
+          }
+        } catch (e) {
+          continue;
         }
-      } catch (e) {}
-
+      }
       return [];
     }
 
@@ -382,7 +394,8 @@
         document.getElementById("ticker-text").innerText = newsData[0].title;
       }
 
-      renderFeedCards(newsData, key);
+      displayedCount = 0;
+      renderInitialFeed(newsData);
       showSkeletons(false);
     }
 
@@ -395,7 +408,7 @@
       });
     }
 
-    function renderFeedCards(items, categoryKey) {
+    function renderInitialFeed(items) {
       const stream = document.getElementById("stream-box");
       const hero = document.getElementById("spotlight-box");
       stream.innerHTML = "";
@@ -410,7 +423,7 @@
         return;
       }
 
-      // نمایش بنر عریض آخرین خبر در بالای صفحه برای تمامی تب‌ها بدون استثنا
+      // بنر عریض آخرین خبر در بالای صفحه برای تمام تب‌ها
       if (items[0].image) {
         document.getElementById("spotlight-img").src = items[0].image;
         document.getElementById("spotlight-title").innerText = items[0].title;
@@ -421,94 +434,45 @@
         hero.classList.add("hidden");
       }
 
-      const list = items[0].image ? items.slice(1) : items;
+      displayedCount = 1; // شروع از بعد از بنر آخرین خبر
+      loadMoreNews();
+    }
 
-      // طراحی سفارشی برای تب «وکیل آنلاین» به شکل پرسش و پاسخ
-      if (categoryKey === 'lawyer_online') {
-        list.forEach((entry, idx) => {
-          const realIdx = items[0].image ? idx + 1 : idx;
-          const card = document.createElement("div");
-          card.className = "glass-card p-4.5 rounded-[24px] border border-rose-500/30 cursor-pointer active:scale-[0.99] transition";
-          card.onclick = () => openStoryReader(realIdx);
-          card.innerHTML = `
-            <div class="flex items-center gap-2 mb-2.5">
-              <span class="bg-gradient-to-r from-rose-600 to-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-md">⚖️ مشاوره تخصصی</span>
-              <span class="text-[9px] text-slate-400 font-mono ml-auto">${entry.pubDate ? entry.pubDate.split(' ')[0] : ''}</span>
-            </div>
-            <h3 class="font-bold text-xs text-white leading-relaxed mb-2">پرسش کاربر: ${entry.title}</h3>
-            <div class="bg-black/30 p-3 rounded-2xl border border-white/5 text-[11px] text-slate-300 line-clamp-2">
-              <span class="text-rose-400 font-bold">پاسخ وکیل: </span>${entry.summary}
-            </div>
-          `;
-          stream.appendChild(card);
-        });
-        return;
-      }
+    function loadMoreNews() {
+      if (isLoadingMore || displayedCount >= newsData.length) return;
+      isLoadingMore = true;
+      document.getElementById("infinite-loader").classList.remove("hidden");
 
-      // طراحی سفارشی برای تب «ورزشی»
-      if (categoryKey === 'sports') {
-        list.forEach((entry, idx) => {
-          const realIdx = items[0].image ? idx + 1 : idx;
+      setTimeout(() => {
+        const stream = document.getElementById("stream-box");
+        const nextEnd = Math.min(displayedCount + batchSize, newsData.length);
+        
+        for (let i = displayedCount; i < nextEnd; i++) {
+          const entry = newsData[i];
           const card = document.createElement("div");
-          card.className = "glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition border-l-4 border-emerald-500";
-          card.onclick = () => openStoryReader(realIdx);
+          card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
+          card.onclick = () => openStoryReader(i);
+
           card.innerHTML = `
             <div class="flex-1 min-w-0 pl-3">
-              <span class="bg-emerald-500/20 text-emerald-400 text-[9px] font-bold px-2 py-0.5 rounded-full">⚽ ورزشی</span>
-              <h3 class="font-bold text-xs text-white leading-snug line-clamp-2 mt-2">${entry.title}</h3>
-              <div class="flex items-center gap-3 mt-3 text-[10px] text-slate-400">
-                <span class="text-emerald-400 font-bold">مشاهده گزارش ←</span>
-                <span>${entry.pubDate ? entry.pubDate.split(' ')[0] : ''}</span>
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full">${entry.categoryName || currentCategoryName}</span>
+                <span class="text-[9px] text-slate-400 font-mono">${entry.pubDate ? entry.pubDate.split(' ')[0] : ''}</span>
+              </div>
+              <h3 class="font-bold text-xs text-slate-100 leading-snug line-clamp-2">${entry.title}</h3>
+              <div class="flex items-center justify-between mt-3 text-[10px]">
+                <span class="text-rose-400 font-bold">مشاهده گزارش ←</span>
               </div>
             </div>
-            ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 border border-white/10" />` : ''}
+            ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 bg-slate-900 border border-white/10" />` : ''}
           `;
           stream.appendChild(card);
-        });
-        return;
-      }
+        }
 
-      // طراحی سفارشی برای تب «عکس» (گالری تصویر عریض)
-      if (categoryKey === 'photos') {
-        list.forEach((entry, idx) => {
-          const realIdx = items[0].image ? idx + 1 : idx;
-          const card = document.createElement("div");
-          card.className = "glass-card rounded-[24px] overflow-hidden cursor-pointer active:scale-[0.99] transition border border-white/10";
-          card.onclick = () => openStoryReader(realIdx);
-          card.innerHTML = `
-            ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-full h-52 object-cover" />` : ''}
-            <div class="p-4 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent">
-              <span class="bg-amber-500/20 text-amber-300 text-[9px] font-bold px-2.5 py-0.5 rounded-full">📸 گزارش تصویری</span>
-              <h3 class="font-bold text-xs md:text-sm text-white mt-2 leading-snug">${entry.title}</h3>
-            </div>
-          `;
-          stream.appendChild(card);
-        });
-        return;
-      }
-
-      // طراحی استاندارد دقیقاً مشابه تصویر ارسالی شما (عنوان در سمت راست بالا، دکمه مشاهده گزارش در سمت چپ پایین، عکس کوچک در سمت چپ بالای کارت)
-      list.forEach((entry, idx) => {
-        const realIdx = items[0].image ? idx + 1 : idx;
-        const card = document.createElement("div");
-        card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150";
-        card.onclick = () => openStoryReader(realIdx);
-
-        card.innerHTML = `
-          <div class="flex-1 min-w-0 pl-3">
-            <div class="flex items-center gap-1.5 mb-1.5">
-              <span class="bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full">${entry.categoryName || currentCategoryName}</span>
-              <span class="text-[9px] text-slate-400 font-mono">${entry.pubDate ? entry.pubDate.split(' ')[0] : ''}</span>
-            </div>
-            <h3 class="font-bold text-xs text-slate-100 leading-snug line-clamp-2">${entry.title}</h3>
-            <div class="flex items-center justify-between mt-3 text-[10px]">
-              <span class="text-rose-400 font-bold">مشاهده گزارش ←</span>
-            </div>
-          </div>
-          ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 bg-slate-900 border border-white/10" />` : ''}
-        `;
-        stream.appendChild(card);
-      });
+        displayedCount = nextEnd;
+        isLoadingMore = false;
+        document.getElementById("infinite-loader").classList.add("hidden");
+      }, 200);
     }
 
     function openStoryReader(index) {
@@ -517,6 +481,7 @@
 
       document.getElementById("spotlight-box").classList.add("hidden");
       document.getElementById("stream-box").classList.add("hidden");
+      document.getElementById("infinite-loader").classList.add("hidden");
       document.getElementById("article-view").classList.remove("hidden");
 
       const img = document.getElementById("article-img");
@@ -582,14 +547,40 @@
     function executeLiveSearch() {
       const query = document.getElementById("search-input").value.trim().toLowerCase();
       if (!query) {
-        renderFeedCards(newsData, currentCategoryKey);
+        displayedCount = 1;
+        renderInitialFeed(newsData);
         return;
       }
       const matched = newsData.filter(x => 
         (x.title && x.title.toLowerCase().includes(query)) || 
         (x.summary && x.summary.toLowerCase().includes(query))
       );
-      renderFeedCards(matched, currentCategoryKey);
+      const stream = document.getElementById("stream-box");
+      stream.innerHTML = "";
+      document.getElementById("spotlight-box").classList.add("hidden");
+
+      matched.forEach((entry, idx) => {
+        const card = document.createElement("div");
+        card.className = "glass-card p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.99] transition duration-150 mb-3.5";
+        card.onclick = () => {
+          const originalIdx = newsData.findIndex(n => n.link === entry.link);
+          openStoryReader(originalIdx !== -1 ? originalIdx : idx);
+        };
+        card.innerHTML = `
+          <div class="flex-1 min-w-0 pl-3">
+            <div class="flex items-center gap-1.5 mb-1.5">
+              <span class="bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full">${entry.categoryName || currentCategoryName}</span>
+              <span class="text-[9px] text-slate-400 font-mono">${entry.pubDate ? entry.pubDate.split(' ')[0] : ''}</span>
+            </div>
+            <h3 class="font-bold text-xs text-slate-100 leading-snug line-clamp-2">${entry.title}</h3>
+            <div class="flex items-center justify-between mt-3 text-[10px]">
+              <span class="text-rose-400 font-bold">مشاهده گزارش ←</span>
+            </div>
+          </div>
+          ${entry.image ? `<img src="${entry.image}" loading="lazy" class="w-20 h-20 rounded-2xl object-cover flex-shrink-0 bg-slate-900 border border-white/10" />` : ''}
+        `;
+        stream.appendChild(card);
+      });
     }
 
     function getStoredFavs() {
@@ -634,8 +625,12 @@
         closeReader();
         homeBtn.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-white text-[10px]";
         saveBtn.className = "flex flex-col items-center gap-1 text-rose-500 text-[10px] font-bold relative";
-        renderFeedCards(getStoredFavs(), 'bookmarks');
+        
+        const favs = getStoredFavs();
+        newsData = favs;
         document.getElementById("spotlight-box").classList.add("hidden");
+        displayedCount = 0;
+        loadMoreNews();
       } else {
         homeBtn.className = "flex flex-col items-center gap-1 text-rose-500 text-[10px] font-bold";
         saveBtn.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-white text-[10px] relative";
